@@ -155,7 +155,7 @@ class Collage:
                 if item_j<len(self.items_list):
                     item = self.items_list[item_j]
                     img = item.foodpic()
-                    img.resize((self.rectw,self.rectw))
+                    img = img.resize((self.rectw,self.rectw))
                     #paste foodpic
                     rectangle.paste(img)
 
