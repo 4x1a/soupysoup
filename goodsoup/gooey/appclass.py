@@ -65,6 +65,12 @@ class App(tk.Tk):
         self.state = state
         print("✅ AppState loaded.")
 
+        #Notify StartPage
+        start_page = self.frames.get("StartPage")
+        if hasattr(start_page, "notify_ready"):
+            start_page.notify_ready()
+
+
     def show_frame(self, page_name, **kwargs):
         frame = self.frames[page_name]
         if hasattr(frame, 'set_data'):
@@ -83,24 +89,53 @@ class App(tk.Tk):
 
         self.show_frame("StartPage")
 
+from tkinter import ttk
 
 class StartPage(tk.Frame):
     def __init__(self, parent, controller):
-        super().__init__(parent,bg="#f7b4c6")
+        super().__init__(parent, bg="#f7b4c6")
         self.controller = controller
         
-        header = Header(self, controller)
-        header.pack(side="top", fill="x")
+        self.header = Header(self, controller)
+        self.header.pack(side="top", fill="x")
 
-        
-        tk.Label(self, text="Welcome!", font=("Helvetica", 40, "bold italic"),bg="#084b39",fg="#f7b4c6").pack(pady=20)
+        # --- Loading spinner and label ---
+        self.loading_frame = tk.Frame(self, bg="#f7b4c6")
+        self.loading_label = tk.Label(self.loading_frame, text="Loading images...", font=("Helvetica", 20), bg="#f7b4c6")
+        self.spinner = ttk.Progressbar(self.loading_frame, mode="indeterminate", length=200)
 
-        tk.Button(self, text="Process Images",
-                  command=lambda: controller.show_frame("ProcessImagesPage")).pack(pady=10)
+        self.loading_label.pack(pady=(50, 10))
+        self.spinner.pack(pady=10)
+        self.loading_frame.pack(expand=True)
 
-        tk.Button(self, text="Create Graphic Flyer",
-                  command=lambda: controller.show_frame("CreateFlyerPage")).pack(pady=10)
+        self.spinner.start(10)  # start spinning immediately
 
+        # --- Content to show after loading ---
+        self.ready_frame = tk.Frame(self, bg="#f7b4c6")
+
+        self.title_label = tk.Label(self.ready_frame, text="Welcome!", font=("Helvetica", 40, "bold italic"),
+                                    bg="#084b39", fg="#f7b4c6")
+        self.title_label.pack(pady=20)
+
+        self.process_btn = tk.Button(self.ready_frame, text="Process Images",
+                                     command=lambda: controller.show_frame("ProcessImagesPage"))
+        self.process_btn.pack(pady=10)
+
+        self.flyer_btn = tk.Button(self.ready_frame, text="Create Graphic Flyer",
+                                   command=lambda: controller.show_frame("CreateFlyerPage"))
+        self.flyer_btn.pack(pady=10)
+
+        # Keep the ready_frame hidden for now
+        self.ready_frame.pack_forget()
+
+    def notify_ready(self):
+        """Called when AppState is finished loading."""
+        # Stop and hide spinner
+        self.spinner.stop()
+        self.loading_frame.pack_forget()
+
+        # Show main UI
+        self.ready_frame.pack(expand=True)
 
 # Assuming you have these already:
 # - load_image(path, size, as_tk)
