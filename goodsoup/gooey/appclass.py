@@ -24,6 +24,9 @@ import queue
 from PIL import Image, ImageTk
 #from gooey.CreateFlyerPage_Subpages import SelectExcelFrame, ChooseImagesFrame, PreviewEntriesFrame, ConfirmEditEntryFrame, DonePageFrame
     
+import threading
+import tkinter as tk
+
 class App(tk.Tk):
     def __init__(self):
         super().__init__()
@@ -31,16 +34,16 @@ class App(tk.Tk):
         self.geometry("1000x800")
         self.configure(bg="#f7b4c6")
 
-        # app state
-        self.state = AppState(IMAGES_DIR)
+        self.state = None  # Initialize later
 
+        # UI layout setup
         container = tk.Frame(self)
         container.pack(fill="both", expand=True)
         container.grid_rowconfigure(0, weight=1)
         container.grid_columnconfigure(0, weight=1)
+        self.container = container  # Save for reuse
 
         self.frames = {}
-
         for F in (StartPage, ProcessImagesPage, CreateFlyerPage, UpdateImagePage):
             page_name = F.__name__
             frame = F(parent=container, controller=self)
@@ -49,6 +52,19 @@ class App(tk.Tk):
 
         self.show_frame("StartPage")
 
+        # Start loading AppState in background
+        threading.Thread(target=self.load_state_in_background, daemon=True).start()
+
+    def load_state_in_background(self):
+        from app_state import AppState  # Import here if it's slow
+        state = AppState(IMAGES_DIR)
+        # Back on main thread, set the state
+        self.after(0, lambda: self.set_app_state(state))
+
+    def set_app_state(self, state):
+        self.state = state
+        print("✅ AppState loaded.")
+
     def show_frame(self, page_name, **kwargs):
         frame = self.frames[page_name]
         if hasattr(frame, 'set_data'):
@@ -56,19 +72,17 @@ class App(tk.Tk):
         frame.tkraise()
         
     def show_home(self):
-    # Clear old CreateFlyerPage
         old_page = self.frames.get("CreateFlyerPage")
         if old_page:
             old_page.destroy()
-    
-        # Reinitialize it
-        container = old_page.master  # all pages share the same parent container
+
+        container = old_page.master
         new_page = CreateFlyerPage(parent=container, controller=self)
         new_page.grid(row=0, column=0, sticky="nsew")
         self.frames["CreateFlyerPage"] = new_page
-    
-        # Show StartPage (or your actual home page)
+
         self.show_frame("StartPage")
+
 
 class StartPage(tk.Frame):
     def __init__(self, parent, controller):
