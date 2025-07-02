@@ -66,26 +66,20 @@ class Item:
         Return a PIL image (500x500 transparent square),
         centered and resized.
         """
+        # background for rn
+        fill_color = white
         path = self.selected_image_path or os.path.join(FOLDER_PATH, FALLBACK_IMAGE)
+        img = load_image(path,as_tk=False)
+        width,height = img.size
+        side_length = max(width,height)
 
-        try:
-            base_img = Image.open(path)
-        except IOError:
-            print("⚠️ Failed to open image. Using fallback.")
-            base_img = Image.open(os.path.join(FOLDER_PATH, FALLBACK_IMAGE))
+        #create new square bkgrnd
+        new_img = Image.new('RGBA',(side_length,side_length),color=fill_color)
 
-        square_w = 1000
-        canvas = Image.new('RGBA', (square_w, square_w), (255, 255, 255, 255))
-
-        w, h = base_img.size
-        ratio = min(square_w / w, square_w / h)
-        new_size = (int(w * ratio), int(h * ratio))
-        resized = base_img.resize(new_size, resample=Image.BILINEAR)
-
-        paste_x = (square_w - new_size[0]) // 2
-        paste_y = (square_w - new_size[1]) // 2
-        canvas.paste(resized, (paste_x, paste_y), resized if resized.mode == 'RGBA' else None)
-
-        return canvas
+        # compute top_left corner to paste og image so its centered
+        left = (side_length-width)// 2
+        top = (side_length-height)//2
+        new_img.paste(img,(left,top))
+        return new_img
 
 

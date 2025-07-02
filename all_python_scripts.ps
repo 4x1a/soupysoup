@@ -1,0 +1,4857 @@
+%!PS-Adobe-3.0
+%%BoundingBox: 18 36 577 806
+%%Title: Enscript Output
+%%Creator: GNU Enscript 1.6.5.90
+%%CreationDate: Tue Jul  1 21:56:26 2025
+%%Orientation: Portrait
+%%Pages: (atend)
+%%DocumentMedia: A4 595 842 0 () ()
+%%DocumentNeededResources: (atend)
+%%EndComments
+%%BeginProlog
+%%BeginResource: procset Enscript-Prolog 1.6.5 90
+%
+% Procedures.
+%
+
+/_S {	% save current state
+  /_s save def
+} def
+/_R {	% restore from saved state
+  _s restore
+} def
+
+/S {	% showpage protecting gstate
+  gsave
+  showpage
+  grestore
+} bind def
+
+/MF {	% fontname newfontname -> -	make a new encoded font
+  /newfontname exch def
+  /fontname exch def
+
+  /fontdict fontname findfont def
+  /newfont fontdict maxlength dict def
+
+  fontdict {
+    exch
+    dup /FID eq {
+      % skip FID pair
+      pop pop
+    } {
+      % copy to the new font dictionary
+      exch newfont 3 1 roll put
+    } ifelse
+  } forall
+
+  newfont /FontName newfontname put
+
+  % insert only valid encoding vectors
+  encoding_vector length 256 eq {
+    newfont /Encoding encoding_vector put
+  } if
+
+  newfontname newfont definefont pop
+} def
+
+/MF_PS { % fontname newfontname -> -	make a new font preserving its enc
+  /newfontname exch def
+  /fontname exch def
+
+  /fontdict fontname findfont def
+  /newfont fontdict maxlength dict def
+
+  fontdict {
+    exch
+    dup /FID eq {
+      % skip FID pair
+      pop pop
+    } {
+      % copy to the new font dictionary
+      exch newfont 3 1 roll put
+    } ifelse
+  } forall
+
+  newfont /FontName newfontname put
+
+  newfontname newfont definefont pop
+} def
+
+/SF { % fontname width height -> -	set a new font
+  /height exch def
+  /width exch def
+
+  findfont
+  [width 0 0 height 0 0] makefont setfont
+} def
+
+/SUF { % fontname width height -> -	set a new user font
+  /height exch def
+  /width exch def
+
+  /F-gs-user-font MF
+  /F-gs-user-font width height SF
+} def
+
+/SUF_PS { % fontname width height -> -	set a new user font preserving its enc
+  /height exch def
+  /width exch def
+
+  /F-gs-user-font MF_PS
+  /F-gs-user-font width height SF
+} def
+
+/M {moveto} bind def
+/s {show} bind def
+
+/Box {	% x y w h -> -			define box path
+  /d_h exch def /d_w exch def /d_y exch def /d_x exch def
+  d_x d_y  moveto
+  d_w 0 rlineto
+  0 d_h rlineto
+  d_w neg 0 rlineto
+  closepath
+} def
+
+/bgs {	% x y height blskip gray str -> -	show string with bg color
+  /str exch def
+  /gray exch def
+  /blskip exch def
+  /height exch def
+  /y exch def
+  /x exch def
+
+  gsave
+    x y blskip sub str stringwidth pop height Box
+    gray setgray
+    fill
+  grestore
+  x y M str s
+} def
+
+/bgcs { % x y height blskip red green blue str -> -  show string with bg color
+  /str exch def
+  /blue exch def
+  /green exch def
+  /red exch def
+  /blskip exch def
+  /height exch def
+  /y exch def
+  /x exch def
+
+  gsave
+    x y blskip sub str stringwidth pop height Box
+    red green blue setrgbcolor
+    fill
+  grestore
+  x y M str s
+} def
+
+% Highlight bars.
+/highlight_bars {	% nlines lineheight output_y_margin gray -> -
+  gsave
+    setgray
+    /ymarg exch def
+    /lineheight exch def
+    /nlines exch def
+
+    % This 2 is just a magic number to sync highlight lines to text.
+    0 d_header_y ymarg sub 2 sub translate
+
+    /cw d_output_w cols div def
+    /nrows d_output_h ymarg 2 mul sub lineheight div cvi def
+
+    % for each column
+    0 1 cols 1 sub {
+      cw mul /xp exch def
+
+      % for each rows
+      0 1 nrows 1 sub {
+        /rn exch def
+        rn lineheight mul neg /yp exch def
+        rn nlines idiv 2 mod 0 eq {
+	  % Draw highlight bar.  4 is just a magic indentation.
+	  xp 4 add yp cw 8 sub lineheight neg Box fill
+	} if
+      } for
+    } for
+
+  grestore
+} def
+
+% Line highlight bar.
+/line_highlight {	% x y width height gray -> -
+  gsave
+    /gray exch def
+    Box gray setgray fill
+  grestore
+} def
+
+% Column separator lines.
+/column_lines {
+  gsave
+    .1 setlinewidth
+    0 d_footer_h translate
+    /cw d_output_w cols div def
+    1 1 cols 1 sub {
+      cw mul 0 moveto
+      0 d_output_h rlineto stroke
+    } for
+  grestore
+} def
+
+% Column borders.
+/column_borders {
+  gsave
+    .1 setlinewidth
+    0 d_footer_h moveto
+    0 d_output_h rlineto
+    d_output_w 0 rlineto
+    0 d_output_h neg rlineto
+    closepath stroke
+  grestore
+} def
+
+% Do the actual underlay drawing
+/draw_underlay {
+  ul_style 0 eq {
+    ul_str true charpath stroke
+  } {
+    ul_str show
+  } ifelse
+} def
+
+% Underlay
+/underlay {	% - -> -
+  gsave
+    0 d_page_h translate
+    d_page_h neg d_page_w atan rotate
+
+    ul_gray setgray
+    ul_font setfont
+    /dw d_page_h dup mul d_page_w dup mul add sqrt def
+    ul_str stringwidth pop dw exch sub 2 div ul_h_ptsize -2 div moveto
+    draw_underlay
+  grestore
+} def
+
+/user_underlay {	% - -> -
+  gsave
+    ul_x ul_y translate
+    ul_angle rotate
+    ul_gray setgray
+    ul_font setfont
+    0 0 ul_h_ptsize 2 div sub moveto
+    draw_underlay
+  grestore
+} def
+
+% Page prefeed
+/page_prefeed {		% bool -> -
+  statusdict /prefeed known {
+    statusdict exch /prefeed exch put
+  } {
+    pop
+  } ifelse
+} def
+
+% Wrapped line markers
+/wrapped_line_mark {	% x y charwith charheight type -> -
+  /type exch def
+  /h exch def
+  /w exch def
+  /y exch def
+  /x exch def
+
+  type 2 eq {
+    % Black boxes (like TeX does)
+    gsave
+      0 setlinewidth
+      x w 4 div add y M
+      0 h rlineto w 2 div 0 rlineto 0 h neg rlineto
+      closepath fill
+    grestore
+  } {
+    type 3 eq {
+      % Small arrows
+      gsave
+        .2 setlinewidth
+        x w 2 div add y h 2 div add M
+        w 4 div 0 rlineto
+        x w 4 div add y lineto stroke
+
+        x w 4 div add w 8 div add y h 4 div add M
+        x w 4 div add y lineto
+	w 4 div h 8 div rlineto stroke
+      grestore
+    } {
+      % do nothing
+    } ifelse
+  } ifelse
+} def
+
+% EPSF import.
+
+/BeginEPSF {
+  /b4_Inc_state save def    		% Save state for cleanup
+  /dict_count countdictstack def	% Count objects on dict stack
+  /op_count count 1 sub def		% Count objects on operand stack
+  userdict begin
+  /showpage { } def
+  0 setgray 0 setlinecap
+  1 setlinewidth 0 setlinejoin
+  10 setmiterlimit [ ] 0 setdash newpath
+  /languagelevel where {
+    pop languagelevel
+    1 ne {
+      false setstrokeadjust false setoverprint
+    } if
+  } if
+} bind def
+
+/EndEPSF {
+  count op_count sub { pos } repeat	% Clean up stacks
+  countdictstack dict_count sub { end } repeat
+  b4_Inc_state restore
+} bind def
+
+% Check PostScript language level.
+/languagelevel where {
+  pop /gs_languagelevel languagelevel def
+} {
+  /gs_languagelevel 1 def
+} ifelse
+%%EndResource
+%%BeginResource: procset Enscript-Encoding-88591 1.6.5 90
+/encoding_vector [
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/space        	/exclam       	/quotedbl     	/numbersign   	
+/dollar       	/percent      	/ampersand    	/quoteright   	
+/parenleft    	/parenright   	/asterisk     	/plus         	
+/comma        	/hyphen       	/period       	/slash        	
+/zero         	/one          	/two          	/three        	
+/four         	/five         	/six          	/seven        	
+/eight        	/nine         	/colon        	/semicolon    	
+/less         	/equal        	/greater      	/question     	
+/at           	/A            	/B            	/C            	
+/D            	/E            	/F            	/G            	
+/H            	/I            	/J            	/K            	
+/L            	/M            	/N            	/O            	
+/P            	/Q            	/R            	/S            	
+/T            	/U            	/V            	/W            	
+/X            	/Y            	/Z            	/bracketleft  	
+/backslash    	/bracketright 	/asciicircum  	/underscore   	
+/quoteleft    	/a            	/b            	/c            	
+/d            	/e            	/f            	/g            	
+/h            	/i            	/j            	/k            	
+/l            	/m            	/n            	/o            	
+/p            	/q            	/r            	/s            	
+/t            	/u            	/v            	/w            	
+/x            	/y            	/z            	/braceleft    	
+/bar          	/braceright   	/tilde        	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/space        	/exclamdown   	/cent         	/sterling     	
+/currency     	/yen          	/brokenbar    	/section      	
+/dieresis     	/copyright    	/ordfeminine  	/guillemotleft	
+/logicalnot   	/hyphen       	/registered   	/macron       	
+/degree       	/plusminus    	/twosuperior  	/threesuperior	
+/acute        	/mu           	/paragraph    	/bullet       	
+/cedilla      	/onesuperior  	/ordmasculine 	/guillemotright	
+/onequarter   	/onehalf      	/threequarters	/questiondown 	
+/Agrave       	/Aacute       	/Acircumflex  	/Atilde       	
+/Adieresis    	/Aring        	/AE           	/Ccedilla     	
+/Egrave       	/Eacute       	/Ecircumflex  	/Edieresis    	
+/Igrave       	/Iacute       	/Icircumflex  	/Idieresis    	
+/Eth          	/Ntilde       	/Ograve       	/Oacute       	
+/Ocircumflex  	/Otilde       	/Odieresis    	/multiply     	
+/Oslash       	/Ugrave       	/Uacute       	/Ucircumflex  	
+/Udieresis    	/Yacute       	/Thorn        	/germandbls   	
+/agrave       	/aacute       	/acircumflex  	/atilde       	
+/adieresis    	/aring        	/ae           	/ccedilla     	
+/egrave       	/eacute       	/ecircumflex  	/edieresis    	
+/igrave       	/iacute       	/icircumflex  	/idieresis    	
+/eth          	/ntilde       	/ograve       	/oacute       	
+/ocircumflex  	/otilde       	/odieresis    	/divide       	
+/oslash       	/ugrave       	/uacute       	/ucircumflex  	
+/udieresis    	/yacute       	/thorn        	/ydieresis    	
+] def
+%%EndResource
+%%EndProlog
+%%BeginSetup
+%%IncludeResource: font Courier-Bold
+%%IncludeResource: font Courier
+/HFpt_w 10 def
+/HFpt_h 10 def
+/Courier-Bold /HF-gs-font MF
+/HF /HF-gs-font findfont [HFpt_w 0 0 HFpt_h 0 0] makefont def
+/Courier /F-gs-font MF
+/F-gs-font 10 10 SF
+/#copies 1 def
+% Pagedevice definitions:
+gs_languagelevel 1 gt {
+  <<
+    /PageSize [595 842] 
+  >> setpagedevice
+} if
+/d_page_w 559 def
+/d_page_h 770 def
+/d_header_x 0 def
+/d_header_y 770 def
+/d_header_w 559 def
+/d_header_h 0 def
+/d_footer_x 0 def
+/d_footer_y 0 def
+/d_footer_w 559 def
+/d_footer_h 0 def
+/d_output_w 559 def
+/d_output_h 770 def
+/cols 1 def
+%%EndSetup
+%%Page: (1) 1
+%%BeginPageSetup
+_S
+18 36 translate
+/pagenum 1 def
+/fname (./Desktop/amyamyamy/goodsoup/launcher.py) def
+/fdir (./Desktop/amyamyamy/goodsoup) def
+/ftail (launcher.py) def
+/user_header_p false def
+/user_footer_p false def
+%%EndPageSetup
+5 757 M
+(#!/usr/bin/env python3) s
+5 746 M
+(# -*- coding: utf-8 -*-) s
+5 735 M
+(""") s
+5 724 M
+(launcher aka entry point) s
+5 713 M
+(#weekly sale) s
+5 702 M
+(""") s
+5 680 M
+(import os) s
+5 669 M
+(import sys) s
+5 658 M
+(import subprocess) s
+5 647 M
+(from app_config import BASE_DIR, IMAGES_DIR) s
+5 636 M
+(print\("Python executable:", sys.executable\)) s
+5 625 M
+(print\("Python version:", sys.version\)) s
+5 603 M
+(def main\(\):) s
+5 592 M
+(    # Get the project root directory \(parent of this launcher script\)) s
+5 581 M
+(    project_root = BASE_DIR) s
+5 570 M
+(    ) s
+5 559 M
+(    # Run the gooey.main_window module using python -m) s
+5 548 M
+(    #subprocess.run\([sys.executable, "-m", "gooey.main_window"], cwd=project_root\)) s
+5 537 M
+(    ) s
+5 526 M
+(    subprocess.run\([sys.executable, "-m", "core.no_gui_main"], cwd=project_root\)) s
+5 504 M
+(if __name__ == "__main__":) s
+5 493 M
+(    main\(\)) s
+_R
+S
+%%Page: (1) 2
+%%BeginPageSetup
+_S
+18 36 translate
+/pagenum 1 def
+/fname (./Desktop/amyamyamy/goodsoup/gooey/main_window.py) def
+/fdir (./Desktop/amyamyamy/goodsoup/gooey) def
+/ftail (main_window.py) def
+/user_header_p false def
+/user_footer_p false def
+%%EndPageSetup
+5 757 M
+(#!/usr/bin/env python3) s
+5 746 M
+(# -*- coding: utf-8 -*-) s
+5 735 M
+(""") s
+5 724 M
+(gooey main window:D) s
+5 713 M
+(""") s
+5 691 M
+(# gui/main_window.py) s
+5 669 M
+(import tkinter as tk) s
+5 658 M
+(# import os) s
+5 647 M
+(from tkinter import ttk) s
+5 636 M
+(from tkinter import messagebox) s
+5 625 M
+(# from gooey.header import Header) s
+5 614 M
+(# from pathlib import Path) s
+5 603 M
+(from app_config import BASE_DIR, ASSETS_DIR, GRAPHICS_EXCELS_DIR, IMAGES_DIR) s
+5 592 M
+(# from core.excel_parser import parse_excel_to_collage) s
+5 581 M
+(# from gooey.image_selector_frame import ItemSelectorFrame) s
+5 570 M
+(# from typing import Optional) s
+5 559 M
+(#from tkinter import filedialog) s
+5 548 M
+(# import threading) s
+5 537 M
+(from gooey.appclass import App) s
+5 526 M
+(# from core.image_utils import build_image_index) s
+5 504 M
+(def main\(\):) s
+5 493 M
+(    app = App\(\)) s
+5 482 M
+(    app.mainloop\(\)) s
+5 471 M
+(    ) s
+5 460 M
+(if __name__ == "__main__":) s
+5 449 M
+(    main\(\)) s
+_R
+S
+%%Page: (1) 3
+%%BeginPageSetup
+_S
+18 36 translate
+/pagenum 1 def
+/fname (./Desktop/amyamyamy/goodsoup/gooey/instructions.py) def
+/fdir (./Desktop/amyamyamy/goodsoup/gooey) def
+/ftail (instructions.py) def
+/user_header_p false def
+/user_footer_p false def
+%%EndPageSetup
+5 757 M
+(#!/usr/bin/env python3) s
+5 746 M
+(# -*- coding: utf-8 -*-) s
+5 735 M
+(""") s
+5 724 M
+(weekly sale) s
+5 713 M
+(""") s
+5 691 M
+(import tkinter as tk) s
+5 680 M
+(from tkinter import ttk) s
+5 658 M
+(def open_instructions_window\(\):) s
+5 647 M
+(    instructions_win = tk.Toplevel\(\)) s
+5 636 M
+(    instructions_win.title\("Instructions"\)) s
+5 625 M
+(    instructions_win.geometry\("400x300"\)) s
+5 603 M
+(    label = ttk.Label\(instructions_win, text="Instructions go here.", font=\("Helvetica", 12) s
+5 592 M
+(\)\)) s
+5 581 M
+(    label.pack\(pady=20\)) s
+5 559 M
+(    close_btn = ttk.Button\(instructions_win, text="Close", command=instructions_win.destroy) s
+5 548 M
+(\)) s
+5 537 M
+(    close_btn.pack\(pady=10\)) s
+_R
+S
+%%Page: (1) 4
+%%BeginPageSetup
+_S
+18 36 translate
+/pagenum 1 def
+/fname (./Desktop/amyamyamy/goodsoup/gooey/albumgooey.py) def
+/fdir (./Desktop/amyamyamy/goodsoup/gooey) def
+/ftail (albumgooey.py) def
+/user_header_p false def
+/user_footer_p false def
+%%EndPageSetup
+5 757 M
+(#!/usr/bin/env python3) s
+5 746 M
+(# -*- coding: utf-8 -*-) s
+5 735 M
+(""") s
+5 724 M
+(album class stuff for weekly sale) s
+5 702 M
+(""") s
+_R
+S
+%%Page: (1) 5
+%%BeginPageSetup
+_S
+18 36 translate
+/pagenum 1 def
+/fname (./Desktop/amyamyamy/goodsoup/gooey/CreateFlyerPage_Subpages.py) def
+/fdir (./Desktop/amyamyamy/goodsoup/gooey) def
+/ftail (CreateFlyerPage_Subpages.py) def
+/user_header_p false def
+/user_footer_p false def
+%%EndPageSetup
+5 757 M
+(#!/usr/bin/env python3) s
+5 746 M
+(# -*- coding: utf-8 -*-) s
+5 735 M
+(""") s
+5 724 M
+(SUBFRAMES OF CREATEGRAPHIC) s
+5 713 M
+(""") s
+5 691 M
+(import tkinter as tk) s
+5 680 M
+(from tkinter import filedialog) s
+5 669 M
+(from core.no_gui_main import make_collage) s
+5 658 M
+(import tkinter as tk) s
+5 647 M
+(from tkinter import filedialog) s
+5 625 M
+(class SelectExcelFrame\(tk.Frame\):) s
+5 614 M
+(    def __init__\(self, parent, controller\):) s
+5 603 M
+(        super\(\).__init__\(parent, bg="#f7b4c6"\)  # Match background) s
+5 592 M
+(        self.controller = controller  # This should be CreateFlyerPage instance managing st) s
+5 581 M
+(eps) s
+5 570 M
+(        self.selected_file = None) s
+5 548 M
+(        # Center container) s
+5 537 M
+(        container = tk.Frame\(self, bg="#f7b4c6"\)) s
+5 526 M
+(        container.place\(relx=0.5, rely=0.5, anchor="center"\)) s
+5 504 M
+(        # Instruction label) s
+5 493 M
+(        tk.Label\(container, text="Select an Excel file to load", font=\("Helvetica", 16\), bg) s
+5 482 M
+(="#f7b4c6"\).pack\(pady=20\)) s
+5 460 M
+(        # Browse button) s
+5 449 M
+(        select_btn = tk.Button\(container, text="Browse Excel File...", command=self.browse_) s
+5 438 M
+(file\)) s
+5 427 M
+(        select_btn.pack\(pady=10\)) s
+5 405 M
+(        # Selected filename label) s
+5 394 M
+(        self.file_label = tk.Label\(container, text="No file selected", fg="gray", bg="#f7b4) s
+5 383 M
+(c6"\)) s
+5 372 M
+(        self.file_label.pack\(pady=5\)) s
+5 350 M
+(        # Next button \(disabled until file selected\)) s
+5 339 M
+(        self.next_btn = tk.Button\(container, text="Next", command=self.go_next, state="disa) s
+5 328 M
+(bled"\)) s
+5 317 M
+(        self.next_btn.pack\(pady=20\)) s
+5 295 M
+(    def browse_file\(self\):) s
+5 284 M
+(        file_path = filedialog.askopenfilename\() s
+5 273 M
+(            title="Select Excel file",) s
+5 262 M
+(            filetypes=[\("Excel Files", "*.xlsx *.xls"\)]) s
+5 251 M
+(        \)) s
+5 240 M
+(        if file_path:) s
+5 229 M
+(            self.selected_file = file_path) s
+5 218 M
+(            filename = file_path.split\("/"\)[-1]  # just filename) s
+5 207 M
+(            self.file_label.config\(text=f"Selected: {filename}", fg="black"\)) s
+5 196 M
+(            self.next_btn.config\(state="normal"\)) s
+5 174 M
+(    def go_next\(self\):) s
+5 163 M
+(        if not self.selected_file:) s
+5 152 M
+(            return) s
+5 130 M
+(        # Save the selected file path in CreateFlyerPage's flyer_data dictionary) s
+5 119 M
+(        self.controller.flyer_data['excel_path'] = self.selected_file) s
+5 97 M
+(        # Call make_collage function \(should be imported or defined elsewhere\)) s
+5 86 M
+(        collage_result = make_collage\(self.selected_file\)) s
+5 75 M
+(        self.controller.collage = collage_result) s
+5 53 M
+(        print\("Collage created:", collage_result is not None\)) s
+5 31 M
+(        # Move to next step in CreateFlyerPage \(step2\)) s
+5 20 M
+(        self.controller.show_step\('step2'\)) s
+_R
+S
+%%Page: (2) 6
+%%BeginPageSetup
+_S
+18 36 translate
+/pagenum 2 def
+/fname (./Desktop/amyamyamy/goodsoup/gooey/CreateFlyerPage_Subpages.py) def
+/fdir (./Desktop/amyamyamy/goodsoup/gooey) def
+/ftail (CreateFlyerPage_Subpages.py) def
+/user_header_p false def
+/user_footer_p false def
+%%EndPageSetup
+5 757 M
+(        ) s
+5 746 M
+(class ChooseImagesFrame\(tk.Frame\):) s
+5 735 M
+(    def __init__\(self, parent, controller\):) s
+5 724 M
+(        super\(\).__init__\(parent\)) s
+5 713 M
+(        self.controller = controller) s
+5 691 M
+(class PreviewEntriesFrame\(tk.Frame\):) s
+5 680 M
+(    def __init__\(self, parent, controller\):) s
+5 669 M
+(        super\(\).__init__\(parent\)) s
+5 658 M
+(        self.controller = controller) s
+5 647 M
+(        ) s
+5 636 M
+(class ConfirmEditEntryFrame\(tk.Frame\):) s
+5 625 M
+(    def __init__\(self, parent, controller\):) s
+5 614 M
+(        super\(\).__init__\(parent\)) s
+5 603 M
+(        self.controller = controller) s
+5 581 M
+(class DonePageFrame\(tk.Frame\):) s
+5 570 M
+(    def __init__\(self, parent, controller\):) s
+5 559 M
+(        super\(\).__init__\(parent\)) s
+5 548 M
+(        self.controller = controller) s
+_R
+S
+%%Page: (1) 7
+%%BeginPageSetup
+_S
+18 36 translate
+/pagenum 1 def
+/fname (./Desktop/amyamyamy/goodsoup/gooey/appclass.py) def
+/fdir (./Desktop/amyamyamy/goodsoup/gooey) def
+/ftail (appclass.py) def
+/user_header_p false def
+/user_footer_p false def
+%%EndPageSetup
+5 757 M
+(#!/usr/bin/env python3) s
+5 746 M
+(# -*- coding: utf-8 -*-) s
+5 735 M
+(""") s
+5 724 M
+(Created on Sun Jun 29 17:01:11 2025) s
+5 702 M
+(APP GOOEY I MOVED IT OUT OF STATE.py) s
+5 691 M
+(""") s
+5 680 M
+(from app_config import IMG_EXTS, IMAGES_DIR) s
+5 669 M
+(import tkinter as tk) s
+5 658 M
+(from tkinter import filedialog, messagebox) s
+5 647 M
+(from tkinter import ttk, Scrollbar, Listbox, StringVar, END) s
+5 636 M
+(from core.state import AppState) s
+5 625 M
+(from core.image_loader import load_image) s
+5 614 M
+(from gooey.header import Header) s
+5 603 M
+(import os) s
+5 592 M
+(from core.no_gui_main import make_collage) s
+5 581 M
+(from core.image_utils import find_matching_images) s
+5 559 M
+(import warnings) s
+5 548 M
+(warnings.simplefilter\('always'\)) s
+5 526 M
+(import threading) s
+5 515 M
+(import queue) s
+5 504 M
+(from PIL import Image, ImageTk) s
+5 493 M
+(#from gooey.CreateFlyerPage_Subpages import SelectExcelFrame, ChooseImagesFrame, PreviewEnt) s
+5 482 M
+(riesFrame, ConfirmEditEntryFrame, DonePageFrame) s
+5 471 M
+(    ) s
+5 460 M
+(class App\(tk.Tk\):) s
+5 449 M
+(    def __init__\(self\):) s
+5 438 M
+(        super\(\).__init__\(\)) s
+5 427 M
+(        self.title\("ANNAXANNAXANNA"\)) s
+5 416 M
+(        self.geometry\("1000x800"\)) s
+5 405 M
+(        self.configure\(bg="#f7b4c6"\)) s
+5 383 M
+(        # app state) s
+5 372 M
+(        self.state = AppState\(IMAGES_DIR\)) s
+5 350 M
+(        container = tk.Frame\(self\)) s
+5 339 M
+(        container.pack\(fill="both", expand=True\)) s
+5 328 M
+(        container.grid_rowconfigure\(0, weight=1\)) s
+5 317 M
+(        container.grid_columnconfigure\(0, weight=1\)) s
+5 295 M
+(        self.frames = {}) s
+5 273 M
+(        for F in \(StartPage, ProcessImagesPage, CreateFlyerPage, UpdateImagePage\):) s
+5 262 M
+(            page_name = F.__name__) s
+5 251 M
+(            frame = F\(parent=container, controller=self\)) s
+5 240 M
+(            self.frames[page_name] = frame) s
+5 229 M
+(            frame.grid\(row=0, column=0, sticky="nsew"\)) s
+5 207 M
+(        self.show_frame\("StartPage"\)) s
+5 185 M
+(    def show_frame\(self, page_name, **kwargs\):) s
+5 174 M
+(        frame = self.frames[page_name]) s
+5 163 M
+(        if hasattr\(frame, 'set_data'\):) s
+5 152 M
+(            frame.set_data\(**kwargs\)) s
+5 141 M
+(        frame.tkraise\(\)) s
+5 130 M
+(        ) s
+5 119 M
+(    def show_home\(self\):) s
+5 108 M
+(    # Clear old CreateFlyerPage) s
+5 97 M
+(        old_page = self.frames.get\("CreateFlyerPage"\)) s
+5 86 M
+(        if old_page:) s
+5 75 M
+(            old_page.destroy\(\)) s
+5 64 M
+(    ) s
+5 53 M
+(        # Reinitialize it) s
+5 42 M
+(        container = old_page.master  # all pages share the same parent container) s
+5 31 M
+(        new_page = CreateFlyerPage\(parent=container, controller=self\)) s
+5 20 M
+(        new_page.grid\(row=0, column=0, sticky="nsew"\)) s
+5 9 M
+(        self.frames["CreateFlyerPage"] = new_page) s
+_R
+S
+%%Page: (2) 8
+%%BeginPageSetup
+_S
+18 36 translate
+/pagenum 2 def
+/fname (./Desktop/amyamyamy/goodsoup/gooey/appclass.py) def
+/fdir (./Desktop/amyamyamy/goodsoup/gooey) def
+/ftail (appclass.py) def
+/user_header_p false def
+/user_footer_p false def
+%%EndPageSetup
+5 757 M
+(    ) s
+5 746 M
+(        # Show StartPage \(or your actual home page\)) s
+5 735 M
+(        self.show_frame\("StartPage"\)) s
+5 713 M
+(class StartPage\(tk.Frame\):) s
+5 702 M
+(    def __init__\(self, parent, controller\):) s
+5 691 M
+(        super\(\).__init__\(parent,bg="#f7b4c6"\)) s
+5 680 M
+(        self.controller = controller) s
+5 669 M
+(        ) s
+5 658 M
+(        header = Header\(self, controller\)) s
+5 647 M
+(        header.pack\(side="top", fill="x"\)) s
+5 625 M
+(        ) s
+5 614 M
+(        tk.Label\(self, text="Welcome!", font=\("Helvetica", 40, "bold italic"\),bg="#084b39",) s
+5 603 M
+(fg="#f7b4c6"\).pack\(pady=20\)) s
+5 581 M
+(        tk.Button\(self, text="Process Images",) s
+5 570 M
+(                  command=lambda: controller.show_frame\("ProcessImagesPage"\)\).pack\(pady=10\)) s
+5 548 M
+(        tk.Button\(self, text="Create Graphic Flyer",) s
+5 537 M
+(                  command=lambda: controller.show_frame\("CreateFlyerPage"\)\).pack\(pady=10\)) s
+5 504 M
+(# Assuming you have these already:) s
+5 493 M
+(# - load_image\(path, size, as_tk\)) s
+5 482 M
+(# - clear_cache\(\)) s
+5 471 M
+(# - Header class) s
+5 460 M
+(# - controller.state.query_images) s
+5 449 M
+(# - controller.show_frame) s
+5 427 M
+(class ProcessImagesPage\(tk.Frame\):) s
+5 416 M
+(    def __init__\(self, parent, controller\):) s
+5 405 M
+(        super\(\).__init__\(parent, bg="#f7b4c6"\)) s
+5 394 M
+(        self.controller = controller) s
+5 372 M
+(        self.load_generation = 0  # to track image load cycles) s
+5 350 M
+(        # Add header at the top) s
+5 339 M
+(        header = Header\(self, controller\)) s
+5 328 M
+(        header.grid\(row=0, column=0, sticky="ew"\)) s
+5 306 M
+(        # Configure grid for the rest of the page content) s
+5 295 M
+(        self.grid_rowconfigure\(3, weight=1\)  # scrollable results area row) s
+5 284 M
+(        self.grid_columnconfigure\(0, weight=1\)) s
+5 262 M
+(        # --- Search & filter controls ---) s
+5 251 M
+(        search_frame = tk.Frame\(self, bg="#f7b4c6"\)) s
+5 240 M
+(        search_frame.grid\(row=1, column=0, sticky="ew", padx=10, pady=5\)) s
+5 229 M
+(        search_frame.grid_columnconfigure\(4, weight=1\)) s
+5 207 M
+(        tk.Label\(search_frame, text="Categories:", bg="#f7b4c6"\).grid\(row=0, column=0, stic) s
+5 196 M
+(ky="w"\)) s
+5 185 M
+(        self.category_listbox = tk.Listbox\(search_frame, selectmode=tk.MULTIPLE, height=5, ) s
+5 174 M
+(exportselection=False\)) s
+5 163 M
+(        self.category_listbox.grid\(row=1, column=0, sticky="w"\)) s
+5 152 M
+(        self.update_category_list\(\)) s
+5 130 M
+(        tk.Label\(search_frame, text="Keyword:", bg="#f7b4c6"\).grid\(row=0, column=1, sticky=) s
+5 119 M
+("w", padx=\(10,0\)\)) s
+5 108 M
+(        self.keyword_entry = tk.Entry\(search_frame\)) s
+5 97 M
+(        self.keyword_entry.grid\(row=1, column=1, sticky="w", padx=\(10,0\)\)) s
+5 75 M
+(        tk.Label\(search_frame, text="Sort by:", bg="#f7b4c6"\).grid\(row=0, column=2, sticky=) s
+5 64 M
+("w", padx=\(10,0\)\)) s
+5 53 M
+(        self.sort_by_var = tk.StringVar\(value='name'\)) s
+5 42 M
+(        sort_options = ['name', 'category']) s
+5 31 M
+(        ttk.OptionMenu\(search_frame, self.sort_by_var, 'name', *sort_options\).grid\(row=1, c) s
+5 20 M
+(olumn=2, sticky="w", padx=\(10,0\)\)) s
+_R
+S
+%%Page: (3) 9
+%%BeginPageSetup
+_S
+18 36 translate
+/pagenum 3 def
+/fname (./Desktop/amyamyamy/goodsoup/gooey/appclass.py) def
+/fdir (./Desktop/amyamyamy/goodsoup/gooey) def
+/ftail (appclass.py) def
+/user_header_p false def
+/user_footer_p false def
+%%EndPageSetup
+5 757 M
+(        self.reverse_var = tk.BooleanVar\(value=False\)) s
+5 746 M
+(        tk.Checkbutton\(search_frame, text="Descending", variable=self.reverse_var, bg="#f7b) s
+5 735 M
+(4c6"\).grid\(row=1, column=3, sticky="w", padx=\(10,0\)\)) s
+5 713 M
+(        tk.Button\(search_frame, text="Search", command=self.run_query\).grid\(row=1, column=4) s
+5 702 M
+(, sticky="w", padx=\(10,0\)\)) s
+5 680 M
+(        # --- Scrollable results area ---) s
+5 669 M
+(        results_frame = tk.Frame\(self, relief="sunken", borderwidth=1\)) s
+5 658 M
+(        results_frame.grid\(row=3, column=0, sticky="nsew", padx=10, pady=5\)) s
+5 647 M
+(        results_frame.grid_rowconfigure\(0, weight=1\)) s
+5 636 M
+(        results_frame.grid_columnconfigure\(0, weight=1\)) s
+5 614 M
+(        self.canvas = tk.Canvas\(results_frame, bg="#f7b4c6"\)) s
+5 603 M
+(        self.scrollbar = tk.Scrollbar\(results_frame, orient="vertical", command=self.canvas) s
+5 592 M
+(.yview\)) s
+5 581 M
+(        self.scrollable_frame = tk.Frame\(self.canvas, bg="#f7b4c6"\)) s
+5 559 M
+(        self.scrollable_frame.bind\("<Configure>", lambda e: self.canvas.configure\(scrollreg) s
+5 548 M
+(ion=self.canvas.bbox\("all"\)\)\)) s
+5 537 M
+(        self.canvas.create_window\(\(0, 0\), window=self.scrollable_frame, anchor="nw"\)) s
+5 526 M
+(        self.canvas.configure\(yscrollcommand=self.scrollbar.set\)) s
+5 504 M
+(        self.canvas.grid\(row=0, column=0, sticky="nsew"\)) s
+5 493 M
+(        self.scrollbar.grid\(row=0, column=1, sticky="ns"\)) s
+5 471 M
+(        # --- Pagination ---) s
+5 460 M
+(        pagination_frame = tk.Frame\(self, bg="#f7b4c6"\)) s
+5 449 M
+(        pagination_frame.grid\(row=4, column=0, sticky="ew", padx=10, pady=5\)) s
+5 438 M
+(        pagination_frame.grid_columnconfigure\(1, weight=1\)) s
+5 416 M
+(        self.prev_button = tk.Button\(pagination_frame, text="Previous", command=self.prev_p) s
+5 405 M
+(age\)) s
+5 394 M
+(        self.prev_button.grid\(row=0, column=0, sticky="w"\)) s
+5 372 M
+(        self.page_label = tk.Label\(pagination_frame, text="Page 1", bg="#f7b4c6"\)) s
+5 361 M
+(        self.page_label.grid\(row=0, column=1\)) s
+5 339 M
+(        self.next_button = tk.Button\(pagination_frame, text="Next", command=self.next_page\)) s
+5 328 M
+(        self.next_button.grid\(row=0, column=2, sticky="e"\)) s
+5 306 M
+(        # Data and pagination state) s
+5 295 M
+(        self.current_results = []) s
+5 284 M
+(        self.page = 0) s
+5 273 M
+(        self.page_size = 15) s
+5 251 M
+(        # Queue and threading setup) s
+5 240 M
+(        self.load_queue = queue.Queue\(\)) s
+5 229 M
+(        self.after\(100, self.process_load_queue\)) s
+5 207 M
+(        # Initial load) s
+5 196 M
+(        self.run_query\(\)) s
+5 174 M
+(    def update_category_list\(self\):) s
+5 163 M
+(        self.category_listbox.delete\(0, tk.END\)) s
+5 152 M
+(        for cat in sorted\(self.controller.state.categories\):) s
+5 141 M
+(            self.category_listbox.insert\(tk.END, cat\)) s
+5 119 M
+(    def run_query\(self\):) s
+5 108 M
+(        selected_indices = self.category_listbox.curselection\(\)) s
+5 97 M
+(        selected_categories = [self.category_listbox.get\(i\) for i in selected_indices]) s
+5 86 M
+(        keyword = self.keyword_entry.get\(\).strip\(\)) s
+5 75 M
+(        sort_by = self.sort_by_var.get\(\)) s
+5 64 M
+(        reverse = self.reverse_var.get\(\)) s
+5 42 M
+(        self.current_results = self.controller.state.query_images\() s
+5 31 M
+(            categories=selected_categories if selected_categories else None,) s
+5 20 M
+(            keyword=keyword if keyword else None,) s
+5 9 M
+(            sort_by=sort_by,) s
+_R
+S
+%%Page: (4) 10
+%%BeginPageSetup
+_S
+18 36 translate
+/pagenum 4 def
+/fname (./Desktop/amyamyamy/goodsoup/gooey/appclass.py) def
+/fdir (./Desktop/amyamyamy/goodsoup/gooey) def
+/ftail (appclass.py) def
+/user_header_p false def
+/user_footer_p false def
+%%EndPageSetup
+5 757 M
+(            reverse=reverse) s
+5 746 M
+(        \)) s
+5 735 M
+(        self.page = 0) s
+5 724 M
+(        self.load_generation += 1  # New load cycle) s
+5 713 M
+(        self.load_current_page\(\)) s
+5 691 M
+(    def load_current_page\(self\):) s
+5 680 M
+(        # Clear current UI entries) s
+5 669 M
+(        for widget in self.scrollable_frame.winfo_children\(\):) s
+5 658 M
+(            widget.destroy\(\)) s
+5 636 M
+(        start = self.page * self.page_size) s
+5 625 M
+(        end = start + self.page_size) s
+5 614 M
+(        page_items = self.current_results[start:end]) s
+5 592 M
+(        # Put load requests in the queue) s
+5 581 M
+(        thumbnail_size = \(100, 100\)) s
+5 570 M
+(        generation = self.load_generation  # capture current generation for closure) s
+5 548 M
+(        for img in page_items:) s
+5 537 M
+(            self.load_queue.put\(\(img, thumbnail_size, generation\)\)) s
+5 515 M
+(        total_pages = max\(1, \(len\(self.current_results\) - 1\) // self.page_size + 1\)) s
+5 504 M
+(        self.page_label.config\(text=f"Page {self.page + 1} of {total_pages}"\)) s
+5 482 M
+(        self.prev_button.config\(state="normal" if self.page > 0 else "disabled"\)) s
+5 471 M
+(        self.next_button.config\(state="normal" if self.page < total_pages - 1 else "disable) s
+5 460 M
+(d"\)) s
+5 438 M
+(    def process_load_queue\(self\):) s
+5 427 M
+(        try:) s
+5 416 M
+(            while True:) s
+5 405 M
+(                img, size, generation = self.load_queue.get_nowait\(\)) s
+5 394 M
+(                # Start a thread to load the image so UI stays responsive) s
+5 383 M
+(                threading.Thread\(target=self.load_image_thread, args=\(img, size, generation) s
+5 372 M
+(\), daemon=True\).start\(\)) s
+5 361 M
+(        except queue.Empty:) s
+5 350 M
+(            pass) s
+5 339 M
+(        self.after\(100, self.process_load_queue\)  # Keep checking queue periodically) s
+5 317 M
+(    def load_image_thread\(self, img, size, generation\):) s
+5 306 M
+(        tk_img = load_image\(img.file_path, size=size\)) s
+5 295 M
+(        # Return to main thread to update UI) s
+5 284 M
+(        self.after\(0, self.create_image_button, img, tk_img, generation\)) s
+5 262 M
+(    def create_image_button\(self, img, tk_img, generation\):) s
+5 251 M
+(        # Only update UI if this load is still current) s
+5 240 M
+(        if generation != self.load_generation:) s
+5 229 M
+(            return  # Stale load, ignore) s
+5 207 M
+(        # Find scrollable_frame is still valid \(hasn't been destroyed\)) s
+5 196 M
+(        if not self.scrollable_frame.winfo_exists\(\):) s
+5 185 M
+(            return) s
+5 163 M
+(        # Create the frame and button for the image) s
+5 152 M
+(        row_frame = tk.Frame\(self.scrollable_frame, bg="#f7b4c6"\)) s
+5 141 M
+(        row_frame.pack\(fill="x", padx=5, pady=5\)) s
+5 119 M
+(        if tk_img:) s
+5 108 M
+(            btn = tk.Button\(row_frame, image=tk_img,) s
+5 97 M
+(                            command=lambda i=img: self.controller.show_frame\('UpdateImagePa) s
+5 86 M
+(ge', image_metadata=i\)\)) s
+5 75 M
+(            btn.image = tk_img  # keep reference) s
+5 64 M
+(            btn.pack\(side="left", padx=5\)) s
+5 53 M
+(        else:) s
+5 42 M
+(            tk.Label\(row_frame, text="[Missing image]", bg="#f7b4c6"\).pack\(side="left", pad) s
+5 31 M
+(x=5\)) s
+5 9 M
+(        text = f"{img.category} / {img.name}") s
+_R
+S
+%%Page: (5) 11
+%%BeginPageSetup
+_S
+18 36 translate
+/pagenum 5 def
+/fname (./Desktop/amyamyamy/goodsoup/gooey/appclass.py) def
+/fdir (./Desktop/amyamyamy/goodsoup/gooey) def
+/ftail (appclass.py) def
+/user_header_p false def
+/user_footer_p false def
+%%EndPageSetup
+5 757 M
+(        tk.Label\(row_frame, text=text, font=\("Helvetica", 25\), anchor="w", justify="left", ) s
+5 746 M
+(bg="#f7b4c6"\)\\) s
+5 735 M
+(            .pack\(side="left", padx=10, fill="x", expand=True\)) s
+5 713 M
+(    def next_page\(self\):) s
+5 702 M
+(        if \(self.page + 1\) * self.page_size < len\(self.current_results\):) s
+5 691 M
+(            self.page += 1) s
+5 680 M
+(            self.load_generation += 1  # Increment generation for new load) s
+5 669 M
+(            self.load_current_page\(\)) s
+5 647 M
+(    def prev_page\(self\):) s
+5 636 M
+(        if self.page > 0:) s
+5 625 M
+(            self.page -= 1) s
+5 614 M
+(            self.load_generation += 1) s
+5 603 M
+(            self.load_current_page\(\)) s
+5 581 M
+(            ) s
+5 570 M
+(""" UPDATEIMAGEPAGE""") s
+5 548 M
+(class UpdateImagePage\(tk.Frame\):) s
+5 537 M
+(    def __init__\(self, parent, controller\):) s
+5 526 M
+(        super\(\).__init__\(parent, bg="#f7b4c6"\)) s
+5 515 M
+(        self.controller = controller) s
+5 493 M
+(        # Header) s
+5 482 M
+(        tk.Label\(self, text="Update Image", font=\("Helvetica", 40, "bold italic"\),) s
+5 471 M
+(                 bg="#084b39", fg="#f7b4c6"\).pack\(pady=10\)) s
+5 449 M
+(        # Image display) s
+5 438 M
+(        self.image_label = tk.Label\(self, bg="#f7b4c6"\)) s
+5 427 M
+(        self.image_label.pack\(pady=10\)) s
+5 405 M
+(        # Frame for inputs) s
+5 394 M
+(        form_frame = tk.Frame\(self, bg="#f7b4c6"\)) s
+5 383 M
+(        form_frame.pack\(pady=10\)) s
+5 361 M
+(        # Filename input) s
+5 350 M
+(        tk.Label\(form_frame, text="Filename:", bg="#f7b4c6"\).grid\(row=0, column=0, sticky=") s
+5 339 M
+(w", padx=5, pady=5\)) s
+5 328 M
+(        self.filename_entry = tk.Entry\(form_frame, width=40\)) s
+5 317 M
+(        self.filename_entry.grid\(row=0, column=1, padx=5, pady=5\)) s
+5 295 M
+(        # Folder/category dropdown) s
+5 284 M
+(        tk.Label\(form_frame, text="Folder \(category\):", bg="#f7b4c6"\).grid\(row=1, column=0,) s
+5 273 M
+( sticky="w", padx=5, pady=5\)) s
+5 262 M
+(        self.folder_var = tk.StringVar\(\)) s
+5 251 M
+(        self.folder_menu = ttk.OptionMenu\(form_frame, self.folder_var, ''\)) s
+5 240 M
+(        self.folder_menu.grid\(row=1, column=1, padx=5, pady=5\)) s
+5 218 M
+(        # Save button) s
+5 207 M
+(        save_btn = tk.Button\(self, text="Save", command=self.save_changes\)) s
+5 196 M
+(        save_btn.pack\(pady=10\)) s
+5 174 M
+(        # Back button \(optional\)) s
+5 163 M
+(        back_btn = tk.Button\(self, text="Back", command=lambda: controller.show_frame\('Proc) s
+5 152 M
+(essImagesPage'\)\)) s
+5 141 M
+(        back_btn.pack\(pady=5\)) s
+5 119 M
+(        # To store image metadata) s
+5 108 M
+(        self.image_metadata = None) s
+5 97 M
+(        self.tk_img = None  # keep reference to prevent GC) s
+5 75 M
+(    def set_data\(self, image_metadata\):) s
+5 64 M
+(        """Called by controller.show_frame to pass image metadata""") s
+5 53 M
+(        self.image_metadata = image_metadata) s
+5 31 M
+(        # Prefill filename) s
+5 20 M
+(        self.filename_entry.delete\(0, tk.END\)) s
+5 9 M
+(        self.filename_entry.insert\(0, image_metadata.name\)) s
+_R
+S
+%%Page: (6) 12
+%%BeginPageSetup
+_S
+18 36 translate
+/pagenum 6 def
+/fname (./Desktop/amyamyamy/goodsoup/gooey/appclass.py) def
+/fdir (./Desktop/amyamyamy/goodsoup/gooey) def
+/ftail (appclass.py) def
+/user_header_p false def
+/user_footer_p false def
+%%EndPageSetup
+5 746 M
+(        # Update folder dropdown options) s
+5 735 M
+(        categories = sorted\(self.controller.state.categories\)) s
+5 724 M
+(        menu = self.folder_menu["menu"]) s
+5 713 M
+(        menu.delete\(0, "end"\)) s
+5 702 M
+(        for cat in categories:) s
+5 691 M
+(            menu.add_command\(label=cat, command=lambda c=cat: self.folder_var.set\(c\)\)) s
+5 680 M
+(        # Set current category) s
+5 669 M
+(        self.folder_var.set\(image_metadata.category\)) s
+5 647 M
+(        # Load and show image) s
+5 636 M
+(        thumbnail_size = \(300, 300\)) s
+5 625 M
+(        self.tk_img = load_image\(image_metadata.file_path, size=thumbnail_size, as_tk=True\)) s
+5 614 M
+(        if self.tk_img:) s
+5 603 M
+(            self.image_label.config\(image=self.tk_img, text=""\)) s
+5 592 M
+(        else:) s
+5 581 M
+(            self.image_label.config\(text="[Failed to load image]", image=""\)) s
+5 559 M
+(    def save_changes\(self\):) s
+5 548 M
+(        new_name = self.filename_entry.get\(\).strip\(\)) s
+5 537 M
+(        new_category = self.folder_var.get\(\).strip\(\)) s
+5 515 M
+(        if not new_name:) s
+5 504 M
+(            messagebox.showerror\("Error", "Filename cannot be empty."\)) s
+5 493 M
+(            return) s
+5 471 M
+(        # Check for invalid characters \(basic check\)) s
+5 460 M
+(        if any\(c in new_name for c in r'<>:"/\\|?*'\):) s
+5 449 M
+(            messagebox.showerror\("Error", "Filename contains invalid characters."\)) s
+5 438 M
+(            return) s
+5 416 M
+(        # Rename if folder/category changed) s
+5 405 M
+(        old_path = self.image_metadata.file_path) s
+5 394 M
+(        current_category = self.image_metadata.category) s
+5 372 M
+(        if new_category != current_category:) s
+5 361 M
+(            # Move to new folder) s
+5 350 M
+(            new_dir = os.path.join\(self.controller.state.root_folder, new_category\)) s
+5 339 M
+(            if not os.path.exists\(new_dir\):) s
+5 328 M
+(                os.makedirs\(new_dir\)) s
+5 306 M
+(            new_path = os.path.join\(new_dir, new_name\)) s
+5 295 M
+(        else:) s
+5 284 M
+(            # Same folder, just rename) s
+5 273 M
+(            new_path = os.path.join\(os.path.dirname\(old_path\), new_name\)) s
+5 251 M
+(        try:) s
+5 240 M
+(            self.controller.state.rename_image\(self.image_metadata, new_name\)) s
+5 229 M
+(            # If category changed, physically move file) s
+5 218 M
+(            if new_category != current_category:) s
+5 207 M
+(                os.replace\(old_path, new_path\)) s
+5 196 M
+(                # Update metadata) s
+5 185 M
+(                self.image_metadata.file_path = new_path) s
+5 174 M
+(                self.image_metadata.category = new_category) s
+5 163 M
+(                self.controller.state.index_images\(\)  # refresh all data) s
+5 141 M
+(            messagebox.showinfo\("Success", "Image updated successfully!"\)) s
+5 130 M
+(            # Optionally go back) s
+5 119 M
+(            self.controller.show_frame\('ProcessImagesPage'\)) s
+5 108 M
+(        except Exception as e:) s
+5 97 M
+(            messagebox.showerror\("Error", f"Failed to rename/move image: {e}"\)) s
+5 75 M
+(class CreateFlyerPage\(tk.Frame\):) s
+5 64 M
+(    def __init__\(self, parent, controller\):) s
+5 53 M
+(        super\(\).__init__\(parent\)) s
+5 42 M
+(        self.controller = controller) s
+5 20 M
+(        self.subpages = {}) s
+5 9 M
+(        self.collage = None) s
+_R
+S
+%%Page: (7) 13
+%%BeginPageSetup
+_S
+18 36 translate
+/pagenum 7 def
+/fname (./Desktop/amyamyamy/goodsoup/gooey/appclass.py) def
+/fdir (./Desktop/amyamyamy/goodsoup/gooey) def
+/ftail (appclass.py) def
+/user_header_p false def
+/user_footer_p false def
+%%EndPageSetup
+5 757 M
+(        self.current_item_index = 0) s
+5 735 M
+(        self.init_subpages\(\)) s
+5 724 M
+(        self.show_subpage\("get_excel"\)) s
+5 702 M
+(    def init_subpages\(self\):) s
+5 691 M
+(        self.subpages["get_excel"] = GetExcelPage\(self, self.controller\)) s
+5 680 M
+(        self.subpages["select_image"] = SelectImagePage\(self, self.controller\)) s
+5 669 M
+(        self.subpages["review"] = ReviewPage\(self, self.controller\)) s
+5 658 M
+(        self.subpages["done"] = DonePage\(self, self.controller\)) s
+5 636 M
+(        for page in self.subpages.values\(\):) s
+5 625 M
+(            page.pack\(fill='both', expand=True\)) s
+5 614 M
+(            page.pack_forget\(\)) s
+5 592 M
+(    def show_subpage\(self, name\):) s
+5 581 M
+(        for page in self.subpages.values\(\):) s
+5 570 M
+(            page.pack_forget\(\)) s
+5 559 M
+(        self.subpages[name].pack\(fill='both', expand=True\)) s
+5 537 M
+(    def load_excel\(self\):) s
+5 526 M
+(        file_path = filedialog.askopenfilename\(filetypes=[\("Excel Files", "*.xlsx"\)]\)) s
+5 515 M
+(        if file_path:) s
+5 504 M
+(            try:) s
+5 493 M
+(                collage = make_collage\(file_path\)) s
+5 482 M
+(                if not collage or not hasattr\(collage, 'items_list'\) or not collage.items_l) s
+5 471 M
+(ist:) s
+5 460 M
+(                    messagebox.showerror\("Error", "Collage has no items."\)) s
+5 449 M
+(                    self.show_subpage\("get_excel"\)) s
+5 438 M
+(                    return) s
+5 416 M
+(                self.collage = collage) s
+5 405 M
+(                self.current_item_index = 0) s
+5 394 M
+(                self.start_select_images\(\)) s
+5 383 M
+(            except ValueError:) s
+5 372 M
+(                messagebox.showerror\("Error", "Invalid data, please try again."\)) s
+5 361 M
+(                self.show_subpage\("get_excel"\)) s
+5 339 M
+(    def start_select_images\(self\):) s
+5 328 M
+(        if self.current_item_index < len\(self.collage.items_list\):) s
+5 317 M
+(            item = self.collage.items_list[self.current_item_index]) s
+5 295 M
+(            # get full list of dicts) s
+5 284 M
+(            state = self.controller.state) s
+5 273 M
+(            search_results = find_matching_images\(item.name, item.chinese_name, state\)) s
+5 262 M
+(    ) s
+5 251 M
+(            item.possible_images = search_results  # keep full data) s
+5 240 M
+(    ) s
+5 229 M
+(            self.subpages["select_image"].load_item\(item\)) s
+5 218 M
+(            self.show_subpage\("select_image"\)) s
+5 207 M
+(        else:) s
+5 196 M
+(            self.go_to_review\(\)) s
+5 163 M
+(    def next_item\(self\):) s
+5 152 M
+(        self.current_item_index += 1) s
+5 141 M
+(        self.start_select_images\(\)) s
+5 119 M
+(    def go_to_review\(self\):) s
+5 108 M
+(        self.subpages["review"].load_items\(self.collage.items_list\)) s
+5 97 M
+(        self.show_subpage\("review"\)) s
+5 75 M
+(    def confirm_flyer\(self\):) s
+5 64 M
+(        try:) s
+5 53 M
+(            # Add your save logic here, e.g. self.collage.save\(\)) s
+5 42 M
+(            self.subpages["done"].set_message\("File saved successfully!"\)) s
+5 31 M
+(        except Exception:) s
+5 20 M
+(            self.subpages["done"].set_message\("Problem saving file."\)) s
+5 9 M
+(        self.show_subpage\("done"\)) s
+_R
+S
+%%Page: (8) 14
+%%BeginPageSetup
+_S
+18 36 translate
+/pagenum 8 def
+/fname (./Desktop/amyamyamy/goodsoup/gooey/appclass.py) def
+/fdir (./Desktop/amyamyamy/goodsoup/gooey) def
+/ftail (appclass.py) def
+/user_header_p false def
+/user_footer_p false def
+%%EndPageSetup
+5 746 M
+(    def return_home\(self\):) s
+5 735 M
+(        self.controller.show_home\(\)) s
+5 702 M
+(class GetExcelPage\(tk.Frame\):) s
+5 691 M
+(    def __init__\(self, parent, controller\):) s
+5 680 M
+(        super\(\).__init__\(parent\)) s
+5 669 M
+(        self.controller = controller) s
+5 658 M
+(        self.master_page = parent  # parent is CreateFlyerPage) s
+5 636 M
+(        tk.Label\(self, text="Step 1: Select Excel File"\).pack\(pady=20\)) s
+5 625 M
+(        tk.Button\(self, text="Choose File", command=self.master_page.load_excel\).pack\(pady=) s
+5 614 M
+(10\)) s
+5 603 M
+(        tk.Button\(self, text="Cancel", command=self.controller.show_home\).pack\(pady=10\)) s
+5 581 M
+(class SelectImagePage\(tk.Frame\):) s
+5 570 M
+(    """) s
+5 559 M
+(    Wizard subpage to let user select an image for one item.) s
+5 548 M
+(    Shows possible images as thumbnails in a grid \(no scrollbar\).) s
+5 537 M
+(    """) s
+5 526 M
+(    def __init__\(self, parent, controller\):) s
+5 515 M
+(        super\(\).__init__\(parent\)) s
+5 504 M
+(        self.controller = controller) s
+5 493 M
+(        self.item = None  # current item instance) s
+5 471 M
+(        # Title label \(item name + chinese name\)) s
+5 460 M
+(        self.title_label = tk.Label\(self, text="", font=\('Arial', 14\)\)) s
+5 449 M
+(        self.title_label.pack\(pady=10\)) s
+5 427 M
+(        # Frame for image buttons grid) s
+5 416 M
+(        self.grid_frame = tk.Frame\(self\)) s
+5 405 M
+(        self.grid_frame.pack\(padx=10, pady=10\)) s
+5 383 M
+(        # Keep references to image button widgets and their images) s
+5 372 M
+(        self.image_buttons = []) s
+5 361 M
+(        self.image_refs = []) s
+5 339 M
+(        # Cancel button) s
+5 328 M
+(        tk.Button\(self, text="Cancel", command=self.controller.show_home\).pack\(pady=10\)) s
+5 306 M
+(    def load_item\(self, item\):) s
+5 295 M
+(        self.item = item) s
+5 284 M
+(        self.title_label.config\(text=f"{item.name} / {item.chinese_name}"\)) s
+5 273 M
+(    ) s
+5 262 M
+(        # Clear old buttons & images) s
+5 251 M
+(        for btn in self.image_buttons:) s
+5 240 M
+(            btn.destroy\(\)) s
+5 229 M
+(        self.image_buttons.clear\(\)) s
+5 218 M
+(        self.image_refs.clear\(\)) s
+5 207 M
+(    ) s
+5 196 M
+(        search_results = item.possible_images) s
+5 185 M
+(    ) s
+5 174 M
+(        columns = 4) s
+5 163 M
+(        row = 0) s
+5 152 M
+(        col = 0) s
+5 141 M
+(    ) s
+5 130 M
+(        for res in search_results:) s
+5 119 M
+(            img_path = res['path']) s
+5 108 M
+(            score = res.get\('score', 0\)) s
+5 97 M
+(    ) s
+5 86 M
+(            thumb = load_image\(img_path, size=\(100, 100\)\)) s
+5 75 M
+(    ) s
+5 64 M
+(            btn = tk.Button\(self.grid_frame, image=thumb,) s
+5 53 M
+(                            command=lambda p=img_path: self.select_image\(p\)\)) s
+5 42 M
+(            btn.image = thumb  # keep reference) s
+5 31 M
+(            btn.grid\(row=row, column=col, padx=5, pady=5\)) s
+5 20 M
+(    ) s
+5 9 M
+(            lbl = tk.Label\(self.grid_frame, text=f"Score: {score}"\)) s
+_R
+S
+%%Page: (9) 15
+%%BeginPageSetup
+_S
+18 36 translate
+/pagenum 9 def
+/fname (./Desktop/amyamyamy/goodsoup/gooey/appclass.py) def
+/fdir (./Desktop/amyamyamy/goodsoup/gooey) def
+/ftail (appclass.py) def
+/user_header_p false def
+/user_footer_p false def
+%%EndPageSetup
+5 757 M
+(            lbl.grid\(row=row+1, column=col, padx=5, pady=\(0,10\)\)) s
+5 746 M
+(    ) s
+5 735 M
+(            self.image_buttons.append\(btn\)) s
+5 724 M
+(            self.image_buttons.append\(lbl\)) s
+5 713 M
+(            self.image_refs.append\(thumb\)) s
+5 702 M
+(    ) s
+5 691 M
+(            col += 1) s
+5 680 M
+(            if col >= columns:) s
+5 669 M
+(                col = 0) s
+5 658 M
+(                row += 2) s
+5 625 M
+(    def select_image\(self, img_path\):) s
+5 614 M
+(        """) s
+5 603 M
+(        Called when user clicks on an image:) s
+5 592 M
+(        - set selected image) s
+5 581 M
+(        - tell CreateFlyerPage to go to next item) s
+5 570 M
+(        """) s
+5 559 M
+(        if self.item:) s
+5 548 M
+(            self.item.set_selected_image\(img_path\)) s
+5 537 M
+(            print\(f"Selected image for {self.item.name}: {img_path}"\)) s
+5 515 M
+(        flyer_page = self.controller.frames.get\("CreateFlyerPage"\)) s
+5 504 M
+(        if flyer_page:) s
+5 493 M
+(            flyer_page.next_item\(\)) s
+5 482 M
+(        else:) s
+5 471 M
+(            print\("Error: CreateFlyerPage not found in controller.frames"\)) s
+5 427 M
+(class ReviewPage\(tk.Frame\):) s
+5 416 M
+(    def __init__\(self, parent, controller\):) s
+5 405 M
+(        super\(\).__init__\(parent\)) s
+5 394 M
+(        self.controller = controller) s
+5 383 M
+(        self.master_page = parent) s
+5 361 M
+(        # Vertical scrollable frame) s
+5 350 M
+(        self.scroll_canvas = tk.Canvas\(self\)) s
+5 339 M
+(        self.scrollbar = ttk.Scrollbar\(self, orient='vertical', command=self.scroll_canvas.) s
+5 328 M
+(yview\)) s
+5 317 M
+(        self.scroll_canvas.configure\(yscrollcommand=self.scrollbar.set\)) s
+5 295 M
+(        self.scroll_frame = tk.Frame\(self.scroll_canvas\)) s
+5 284 M
+(        self.scroll_canvas.create_window\(\(0,0\), window=self.scroll_frame, anchor='nw'\)) s
+5 273 M
+(        self.scroll_frame.bind\("<Configure>", lambda e: self.scroll_canvas.configure\(scroll) s
+5 262 M
+(region=self.scroll_canvas.bbox\("all"\)\)\)) s
+5 240 M
+(        self.scroll_canvas.pack\(side='left', fill='both', expand=True\)) s
+5 229 M
+(        self.scrollbar.pack\(side='right', fill='y'\)) s
+5 207 M
+(        tk.Button\(self, text="Confirm and Save", command=self.master_page.confirm_flyer\).pa) s
+5 196 M
+(ck\(pady=10\)) s
+5 185 M
+(        tk.Button\(self, text="Cancel", command=self.controller.show_home\).pack\(pady=5\)) s
+5 163 M
+(    def load_items\(self, items\):) s
+5 152 M
+(        for widget in self.scroll_frame.winfo_children\(\):) s
+5 141 M
+(            widget.destroy\(\)) s
+5 130 M
+(        for item in items:) s
+5 119 M
+(            frame = tk.Frame\(self.scroll_frame, pady=2\)) s
+5 108 M
+(            tk.Label\(frame, text=item.name\).pack\(side='left', padx=5\)) s
+5 97 M
+(            tk.Label\(frame, text=item.chinese_name\).pack\(side='left', padx=5\)) s
+5 86 M
+(            tk.Label\(frame, text=item.price\).pack\(side='left', padx=5\)) s
+5 75 M
+(            if item.selected_image:) s
+5 64 M
+(                thumb = load_thumbnail\(item.selected_image\)) s
+5 53 M
+(                lbl = tk.Label\(frame, image=thumb\)) s
+5 42 M
+(                lbl.image = thumb  # keep reference) s
+5 31 M
+(                lbl.pack\(side='left', padx=5\)) s
+5 20 M
+(            frame.pack\(fill='x', pady=2\)) s
+_R
+S
+%%Page: (10) 16
+%%BeginPageSetup
+_S
+18 36 translate
+/pagenum 10 def
+/fname (./Desktop/amyamyamy/goodsoup/gooey/appclass.py) def
+/fdir (./Desktop/amyamyamy/goodsoup/gooey) def
+/ftail (appclass.py) def
+/user_header_p false def
+/user_footer_p false def
+%%EndPageSetup
+5 735 M
+(class DonePage\(tk.Frame\):) s
+5 724 M
+(    def __init__\(self, parent, controller\):) s
+5 713 M
+(        super\(\).__init__\(parent\)) s
+5 702 M
+(        self.controller = controller) s
+5 691 M
+(        self.master_page = parent) s
+5 669 M
+(        self.message = tk.Label\(self, text="", font=\('Arial', 14\)\)) s
+5 658 M
+(        self.message.pack\(pady=20\)) s
+5 636 M
+(        tk.Button\(self, text="Return Home", command=self.controller.show_home\).pack\(pady=10) s
+5 625 M
+(\)) s
+5 603 M
+(    def set_message\(self, text\):) s
+5 592 M
+(        self.message.config\(text=text\)) s
+5 570 M
+(if __name__ == "__main__":) s
+5 559 M
+(    app = App\(\)) s
+5 548 M
+(    app.mainloop\(\)) s
+_R
+S
+%%Page: (1) 17
+%%BeginPageSetup
+_S
+18 36 translate
+/pagenum 1 def
+/fname (./Desktop/amyamyamy/goodsoup/gooey/gooeyinitclass.py) def
+/fdir (./Desktop/amyamyamy/goodsoup/gooey) def
+/ftail (gooeyinitclass.py) def
+/user_header_p false def
+/user_footer_p false def
+%%EndPageSetup
+5 757 M
+(#!/usr/bin/env python3) s
+5 746 M
+(# -*- coding: utf-8 -*-) s
+5 735 M
+(""") s
+5 724 M
+(Created on Sun Jun 29 15:05:28 2025) s
+5 702 M
+(@author: annax) s
+5 691 M
+(WEEKLY SALE initializer \(GOOEY\)) s
+5 669 M
+(in the main gooey we create an instance of this app class to start the app) s
+5 658 M
+(""") s
+5 625 M
+(class App\(tk.Tk\):) s
+5 614 M
+(    def __init__\(self\):) s
+5 603 M
+(        super\(\).__init__\(\)) s
+5 592 M
+(        self.title\("GRAPHIC ASSISTANT"\)) s
+5 581 M
+(        self.geometry\("1000x600"\)) s
+5 559 M
+(        # app state) s
+5 548 M
+(        self.state = AppState\(IMAGES_DIR\)) s
+5 526 M
+(        # container holds current frame) s
+5 515 M
+(        container = tk.Frame\(self\)) s
+5 504 M
+(        container.pack\(fill="both", expand=True\)) s
+5 482 M
+(        self.frames = {}  # keeps all pages) s
+5 460 M
+(        for F in \(StartPage, ProcessImagesPage, CreateFlyerPage\):) s
+5 449 M
+(            page_name = F.__name__) s
+5 438 M
+(            frame = F\(parent=container, controller=self\)) s
+5 427 M
+(            self.frames[page_name] = frame) s
+5 405 M
+(            # all frames are stacked but only one is shown) s
+5 394 M
+(            frame.grid\(row=0, column=0, sticky="nsew"\)) s
+5 372 M
+(        self.show_frame\("StartPage"\)) s
+5 350 M
+(    def show_frame\(self, page_name\):) s
+5 339 M
+(        '''Raise the frame by name''') s
+5 328 M
+(        frame = self.frames[page_name]) s
+5 317 M
+(        frame.tkraise\(\)) s
+5 295 M
+(class StartPage\(tk.Frame\):) s
+5 284 M
+(    def __init__\(self, parent, controller\):) s
+5 273 M
+(        super\(\).__init__\(parent\)) s
+5 262 M
+(        tk.Label\(self, text="Welcome!", font=\("Helvetica", 16\)\).pack\(pady=20\)) s
+5 240 M
+(        tk.Button\(self, text="Process Images",) s
+5 229 M
+(                  command=lambda: controller.show_frame\("ProcessImagesPage"\)\).pack\(pady=10\)) s
+5 207 M
+(        tk.Button\(self, text="Create Graphic Flyer",) s
+5 196 M
+(                  command=lambda: controller.show_frame\("CreateFlyerPage"\)\).pack\(pady=10\)) s
+5 174 M
+(class ProcessImagesPage\(tk.Frame\):) s
+5 163 M
+(    def __init__\(self, parent, controller\):) s
+5 152 M
+(        super\(\).__init__\(parent\)) s
+5 141 M
+(        ) s
+5 119 M
+(    def select_folder\(self\):) s
+5 108 M
+(        folder = filedialog.askdirectory\(title="Select Images Root Folder"\)) s
+5 97 M
+(        if folder:) s
+5 86 M
+(            self.controller.state.images_dir = folder) s
+5 75 M
+(            messagebox.showinfo\("Done", f"Set images directory to:\\n{folder}"\)) s
+5 53 M
+(class CreateFlyerPage\(tk.Frame\):) s
+5 42 M
+(    def __init__\(self, parent, controller\):) s
+5 31 M
+(        super\(\).__init__\(parent\)) s
+5 20 M
+(        tk.Label\(self, text="Create Graphic Flyer", font=\("Helvetica", 14\)\).pack\(pady=10\)) s
+_R
+S
+%%Page: (2) 18
+%%BeginPageSetup
+_S
+18 36 translate
+/pagenum 2 def
+/fname (./Desktop/amyamyamy/goodsoup/gooey/gooeyinitclass.py) def
+/fdir (./Desktop/amyamyamy/goodsoup/gooey) def
+/ftail (gooeyinitclass.py) def
+/user_header_p false def
+/user_footer_p false def
+%%EndPageSetup
+5 757 M
+(        #tk.Button\(self, text="Select Excel File", command=self.select_excel\).pack\(pady=10\)) s
+5 735 M
+(        tk.Button\(self, text="Back", command=lambda: controller.show_frame\("StartPage"\)\).pa) s
+5 724 M
+(ck\(pady=10\)) s
+5 713 M
+(        ) s
+5 702 M
+(        self.controller = controller) s
+5 680 M
+("""    def select_excel\(self\):) s
+5 669 M
+(        excel_file = filedialog.askopenfilename\() s
+5 658 M
+(            title="Select Excel File",) s
+5 647 M
+(            filetypes=[\("Excel files", "*.xlsx"\)]) s
+5 636 M
+(        \)) s
+5 625 M
+(        if excel_file:) s
+5 614 M
+(            basename = os.path.basename\(excel_file\)) s
+5 603 M
+(            collage = make_collage\(basename\)) s
+5 592 M
+(            if collage:) s
+5 581 M
+(                u_choose_images\(collage, self.controller.state\)) s
+5 570 M
+(                make_n_save_graphic\(collage\)) s
+5 559 M
+(                messagebox.showinfo\("Success", "Flyer created and saved!"\)) s
+5 548 M
+(            else:) s
+5 537 M
+(                messagebox.showerror\("Error", "Failed to create flyer."\)""") s
+_R
+S
+%%Page: (1) 19
+%%BeginPageSetup
+_S
+18 36 translate
+/pagenum 1 def
+/fname (./Desktop/amyamyamy/goodsoup/gooey/__init__.py) def
+/fdir (./Desktop/amyamyamy/goodsoup/gooey) def
+/ftail (__init__.py) def
+/user_header_p false def
+/user_footer_p false def
+%%EndPageSetup
+5 757 M
+(#!/usr/bin/env python3) s
+5 746 M
+(# -*- coding: utf-8 -*-) s
+5 735 M
+(""") s
+5 724 M
+(init gooey) s
+5 713 M
+(#weekly sale) s
+5 702 M
+(""") s
+_R
+S
+%%Page: (1) 20
+%%BeginPageSetup
+_S
+18 36 translate
+/pagenum 1 def
+/fname (./Desktop/amyamyamy/goodsoup/gooey/header.py) def
+/fdir (./Desktop/amyamyamy/goodsoup/gooey) def
+/ftail (header.py) def
+/user_header_p false def
+/user_footer_p false def
+%%EndPageSetup
+5 757 M
+(#!/usr/bin/env python3) s
+5 746 M
+(# -*- coding: utf-8 -*-) s
+5 735 M
+(""") s
+5 724 M
+(# gui/header.py) s
+5 713 M
+(""") s
+5 669 M
+(import tkinter as tk) s
+5 658 M
+(from gooey.instructions import open_instructions_window) s
+5 636 M
+(class Header\(tk.Frame\):) s
+5 625 M
+(    def __init__\(self, parent, controller\):) s
+5 614 M
+(        super\(\).__init__\(parent, bg='#084b39'\)  # Header background color) s
+5 603 M
+(        self.controller = controller) s
+5 592 M
+(        self.configure\(padx=10, pady=10\)) s
+5 570 M
+(        home_btn = tk.Button\() s
+5 559 M
+(            self,) s
+5 548 M
+(            text="Home",) s
+5 537 M
+(            bg='#f7b4c6',) s
+5 526 M
+(            fg='#000000',) s
+5 515 M
+(            activebackground='#d9a8b2',) s
+5 504 M
+(            activeforeground='#000000',) s
+5 493 M
+(            command=lambda: controller.show_frame\("StartPage"\)) s
+5 482 M
+(        \)) s
+5 471 M
+(        home_btn.pack\(side=tk.LEFT, padx=\(0, 10\)\)) s
+5 449 M
+(        instructions_btn = tk.Button\() s
+5 438 M
+(            self,) s
+5 427 M
+(            text="Instructions",) s
+5 416 M
+(            bg='#f7b4c6',) s
+5 405 M
+(            fg='#000000',) s
+5 394 M
+(            activebackground='#d9a8b2',) s
+5 383 M
+(            activeforeground='#000000',) s
+5 372 M
+(            command=open_instructions_window) s
+5 361 M
+(        \)) s
+5 350 M
+(        instructions_btn.pack\(side=tk.RIGHT\)) s
+_R
+S
+%%Page: (1) 21
+%%BeginPageSetup
+_S
+18 36 translate
+/pagenum 1 def
+/fname (./Desktop/amyamyamy/goodsoup/gooey/image_selector_frame.py) def
+/fdir (./Desktop/amyamyamy/goodsoup/gooey) def
+/ftail (image_selector_frame.py) def
+/user_header_p false def
+/user_footer_p false def
+%%EndPageSetup
+5 757 M
+(import os) s
+5 746 M
+(import tkinter as tk) s
+5 735 M
+(from tkinter import ttk) s
+5 724 M
+(from core.image_loader import load_image  # Ensure this provides PIL image loading and TK c) s
+5 713 M
+(onversion) s
+5 691 M
+(class ItemSelectorFrame\(ttk.Frame\):) s
+5 680 M
+(    def __init__\(self, master, items, image_index\):) s
+5 669 M
+(        super\(\).__init__\(master\)) s
+5 658 M
+(        self.items = items) s
+5 647 M
+(        self.image_index = image_index) s
+5 636 M
+(        self.item_frames = []) s
+5 614 M
+(        # Reset All button) s
+5 603 M
+(        top_controls = ttk.Frame\(self\)) s
+5 592 M
+(        top_controls.pack\(fill='x', pady=\(5, 0\)\)) s
+5 581 M
+(        ttk.Button\(top_controls, text="Reset All Images", command=self.reset_all_images\).pa) s
+5 570 M
+(ck\(side="right", padx=5\)) s
+5 548 M
+(        # Scrollable area) s
+5 537 M
+(        self.canvas = tk.Canvas\(self\)) s
+5 526 M
+(        self.scrollbar = ttk.Scrollbar\(self, orient="vertical", command=self.canvas.yview\)) s
+5 515 M
+(        self.canvas.configure\(yscrollcommand=self.scrollbar.set\)) s
+5 493 M
+(        self.scrollable_frame = ttk.Frame\(self.canvas\)) s
+5 482 M
+(        self.canvas.create_window\(\(0, 0\), window=self.scrollable_frame, anchor="nw"\)) s
+5 460 M
+(        self.scrollable_frame.bind\() s
+5 449 M
+(            "<Configure>",) s
+5 438 M
+(            lambda e: self.canvas.configure\(scrollregion=self.canvas.bbox\("all"\)\)) s
+5 427 M
+(        \)) s
+5 405 M
+(        self.canvas.pack\(side="left", fill="both", expand=True\)) s
+5 394 M
+(        self.scrollbar.pack\(side="right", fill="y"\)) s
+5 372 M
+(        # Add expandable frames) s
+5 361 M
+(        for item in self.items:) s
+5 350 M
+(            item_frame = ExpandableItemFrame\(self.scrollable_frame, item, self.image_index\)) s
+5 339 M
+(            item_frame.pack\(fill="x", padx=5, pady=3\)) s
+5 328 M
+(            self.item_frames.append\(item_frame\)) s
+5 306 M
+(    def reset_all_images\(self\):) s
+5 295 M
+(        for frame in self.item_frames:) s
+5 284 M
+(            frame.reset\(\)) s
+5 251 M
+(class ExpandableItemFrame\(ttk.Frame\):) s
+5 240 M
+(    def __init__\(self, master, item, image_index\):) s
+5 229 M
+(        super\(\).__init__\(master\)) s
+5 218 M
+(        self.item = item) s
+5 207 M
+(        self.image_index = image_index) s
+5 196 M
+(        self.expanded = False) s
+5 185 M
+(        self.selected_button = None) s
+5 174 M
+(        self.image_buttons = {}) s
+5 163 M
+(        self.images_frame = None) s
+5 141 M
+(        # Header UI) s
+5 130 M
+(        header = ttk.Frame\(self\)) s
+5 119 M
+(        header.pack\(fill='x'\)) s
+5 108 M
+(        ttk.Label\(header, text=item.name\).pack\(side="left", padx=5\)) s
+5 86 M
+(        controls = ttk.Frame\(header\)) s
+5 75 M
+(        controls.pack\(side="right"\)) s
+5 64 M
+(        ttk.Button\(controls, text="Reset", command=self.reset\).pack\(side="left", padx=2\)) s
+5 53 M
+(        ttk.Button\(controls, text="+", width=2, command=self.toggle\).pack\(side="left"\)) s
+5 31 M
+(    def toggle\(self\):) s
+5 20 M
+(        if self.expanded:) s
+5 9 M
+(            self.collapse\(\)) s
+_R
+S
+%%Page: (2) 22
+%%BeginPageSetup
+_S
+18 36 translate
+/pagenum 2 def
+/fname (./Desktop/amyamyamy/goodsoup/gooey/image_selector_frame.py) def
+/fdir (./Desktop/amyamyamy/goodsoup/gooey) def
+/ftail (image_selector_frame.py) def
+/user_header_p false def
+/user_footer_p false def
+%%EndPageSetup
+5 757 M
+(        else:) s
+5 746 M
+(            self.expand\(\)) s
+5 724 M
+(    def expand\(self\):) s
+5 713 M
+(        if not self.images_frame:) s
+5 702 M
+(            self.images_frame = ttk.Frame\(self\)) s
+5 691 M
+(            self.images_frame.pack\(fill="x"\)) s
+5 669 M
+(            canvas = tk.Canvas\(self.images_frame, height=100\)) s
+5 658 M
+(            canvas.pack\(side="top", fill="x", expand=True\)) s
+5 647 M
+(            scroll_x = ttk.Scrollbar\(self.images_frame, orient="horizontal", command=canvas) s
+5 636 M
+(.xview\)) s
+5 625 M
+(            scroll_x.pack\(side="bottom", fill="x"\)) s
+5 614 M
+(            canvas.configure\(xscrollcommand=scroll_x.set\)) s
+5 592 M
+(            inner = ttk.Frame\(canvas\)) s
+5 581 M
+(            canvas.create_window\(\(0, 0\), window=inner, anchor="nw"\)) s
+5 559 M
+(            # Get candidate image paths from index) s
+5 548 M
+(            hint = self.item.image_hint) s
+5 537 M
+(            image_paths = self.image_index.get\(hint, []\)) s
+5 515 M
+(            for img_path in image_paths:) s
+5 504 M
+(                thumb = load_image\(img_path, size=\(80, 80\), as_tk=True\)) s
+5 493 M
+(                if thumb is None:) s
+5 482 M
+(                    continue) s
+5 460 M
+(                frame = ttk.Frame\(inner, borderwidth=2, relief="flat"\)) s
+5 449 M
+(                frame.pack\(side="left", padx=4\)) s
+5 427 M
+(                btn = ttk.Label\(frame, image=thumb\)) s
+5 416 M
+(                btn.image = thumb  # prevent garbage collection) s
+5 405 M
+(                btn.pack\(\)) s
+5 394 M
+(                btn.bind\("<Double-Button-1>", lambda e, p=img_path, f=frame: self.select_im) s
+5 383 M
+(age\(p, f\)\)) s
+5 361 M
+(                self.image_buttons[img_path] = frame) s
+5 339 M
+(            inner.update_idletasks\(\)) s
+5 328 M
+(            canvas.config\(scrollregion=canvas.bbox\("all"\)\)) s
+5 317 M
+(        else:) s
+5 306 M
+(            self.images_frame.pack\(fill="x"\)) s
+5 284 M
+(        self.expanded = True) s
+5 262 M
+(    def collapse\(self\):) s
+5 251 M
+(        if self.images_frame:) s
+5 240 M
+(            self.images_frame.pack_forget\(\)) s
+5 229 M
+(        self.expanded = False) s
+5 207 M
+(    def select_image\(self, path, frame\):) s
+5 196 M
+(        if self.selected_button:) s
+5 185 M
+(            self.selected_button.config\(relief="flat", borderwidth=2\)) s
+5 163 M
+(        frame.config\(relief="solid", borderwidth=3\)) s
+5 152 M
+(        self.selected_button = frame) s
+5 141 M
+(        self.item.selected_image_path = path) s
+5 130 M
+(        print\(f"[{self.item.name}] selected image: {os.path.basename\(path\)}"\)) s
+5 108 M
+(    def reset\(self\):) s
+5 97 M
+(        self.item.selected_image_path = None) s
+5 86 M
+(        if self.selected_button:) s
+5 75 M
+(            self.selected_button.config\(relief="flat", borderwidth=2\)) s
+5 64 M
+(            self.selected_button = None) s
+5 53 M
+(        print\(f"[{self.item.name}] image reset."\)) s
+_R
+S
+%%Page: (1) 23
+%%BeginPageSetup
+_S
+18 36 translate
+/pagenum 1 def
+/fname (./Desktop/amyamyamy/goodsoup/app_config.py) def
+/fdir (./Desktop/amyamyamy/goodsoup) def
+/ftail (app_config.py) def
+/user_header_p false def
+/user_footer_p false def
+%%EndPageSetup
+5 757 M
+(# -*- coding: utf-8 -*-) s
+5 746 M
+("""app_config.ipynb) s
+5 724 M
+(Automatically generated by Colab.) s
+5 702 M
+(Original file is located at) s
+5 691 M
+(    https://colab.research.google.com/drive/1SEOX2HEy7eLmSycZTQewx6L6gRw-N-CJ) s
+5 680 M
+(""") s
+5 658 M
+(## should be called app_config.py) s
+5 647 M
+(from pathlib import Path) s
+5 636 M
+(import os) s
+5 625 M
+(import sys) s
+5 603 M
+(if getattr\(sys, 'frozen', False\):) s
+5 592 M
+(    # Running as a bundled executable) s
+5 581 M
+(    BASE_DIR = os.path.dirname\(sys.executable\)) s
+5 570 M
+(else:) s
+5 559 M
+(    # Running in development \(as a script\)) s
+5 548 M
+(    BASE_DIR = os.path.abspath\(os.path.dirname\(__file__\)\)) s
+5 526 M
+(ASSETS_DIR = os.path.join\(BASE_DIR, "assets"\)) s
+5 515 M
+(# gives the folder that the app is in) s
+5 493 M
+(# Simple: just use absolute paths to the parent directory) s
+5 482 M
+(PROJECT_PARENT = os.path.abspath\(os.path.join\(BASE_DIR, ".."\)\)) s
+5 471 M
+(GRAPHICS_EXCELS_DIR = os.path.join\(PROJECT_PARENT, "graphicsExcels"\)) s
+5 460 M
+(IMAGES_DIR = os.path.join\(PROJECT_PARENT, "goodimages"\)) s
+5 438 M
+(IMG_EXTS = \('.png', '.jpg', '.jpeg', '.avif'\)  # used for quick validation) s
+5 427 M
+(FALLBACK_IMAGE = os.path.join\(ASSETS_DIR,'blank_square.png'\)) s
+5 416 M
+(HEADER_PATH = os.path.join\(ASSETS_DIR,'newgolden_header.png'\)) s
+5 405 M
+(BHEADER_PATH = os.path.join\(ASSETS_DIR,'newgolden_bottomheader.png'\)) s
+5 383 M
+(FONT_PATH_CN = os.path.join\(ASSETS_DIR,'NotoSansSC-SemiBold.ttf'\)) s
+5 372 M
+(FONT_PATH_EN = os.path.join\(ASSETS_DIR,'NotoSansSC-SemiBold.ttf'\)) s
+5 361 M
+(FONT_PATH_BOLD = os.path.join\(ASSETS_DIR,'Shrikhand-Regular.ttf'\)) s
+5 350 M
+(PRICEBOX_PATH = os.path.join\(ASSETS_DIR,'pop_speech_bubb.png'\)) s
+5 339 M
+(FILLER_PATH = os.path.join\(ASSETS_DIR,'luckycat3.png'\)) s
+5 317 M
+(# You can add other paths or settings here as well) s
+_R
+S
+%%Page: (1) 24
+%%BeginPageSetup
+_S
+18 36 translate
+/pagenum 1 def
+/fname (./Desktop/amyamyamy/goodsoup/core/no_gui_main.py) def
+/fdir (./Desktop/amyamyamy/goodsoup/core) def
+/ftail (no_gui_main.py) def
+/user_header_p false def
+/user_footer_p false def
+%%EndPageSetup
+5 757 M
+(#!/usr/bin/env python3) s
+5 746 M
+(# -*- coding: utf-8 -*-) s
+5 735 M
+(""") s
+5 724 M
+(fake main aka no gui testing) s
+5 713 M
+(""") s
+5 702 M
+(import tkinter as tk) s
+5 691 M
+(import os) s
+5 680 M
+(from tkinter import ttk) s
+5 669 M
+(from tkinter import messagebox) s
+5 658 M
+(from gooey.header import Header) s
+5 647 M
+(from pathlib import Path) s
+5 636 M
+(from app_config import BASE_DIR, ASSETS_DIR, GRAPHICS_EXCELS_DIR, IMAGES_DIR) s
+5 625 M
+(from core.excel_parser import parse_excel_to_collage) s
+5 614 M
+(from gooey.image_selector_frame import ItemSelectorFrame) s
+5 603 M
+(from typing import Optional) s
+5 592 M
+(from tkinter import filedialog) s
+5 581 M
+(import threading) s
+5 570 M
+(from core.state import AppState) s
+5 559 M
+(import fpdf) s
+5 537 M
+(def main\(\):) s
+5 526 M
+(    ) s
+5 515 M
+(    print\('hello world'\)) s
+5 504 M
+(    ) s
+5 493 M
+(    #initialize app state) s
+5 482 M
+(    state = AppState\(IMAGES_DIR\)) s
+5 471 M
+(    ) s
+5 460 M
+(    excel = 'weeklysale10-01-25to11-05-25.xlsx') s
+5 449 M
+(    collage = make_collage\(excel\)) s
+5 438 M
+(    #make sure object instance was created) s
+5 427 M
+(    if collage != None:) s
+5 416 M
+(        u_choose_images\(collage, state\)) s
+5 405 M
+(    ) s
+5 394 M
+(        ) s
+5 383 M
+(    make_n_save_graphic\(collage\)) s
+5 372 M
+(        ) s
+5 361 M
+(    ) s
+5 350 M
+(    ) s
+5 317 M
+(#turn excel into collage) s
+5 295 M
+(def make_collage\(excelfile\):) s
+5 284 M
+(#excelfile = str\(input\('excel filename'\)\)) s
+5 273 M
+(    excelpath = Path\(os.path.join\(GRAPHICS_EXCELS_DIR,excelfile\)\)) s
+5 262 M
+(    if excelpath.is_file\(\):) s
+5 251 M
+(        try: ) s
+5 240 M
+(            collage = parse_excel_to_collage\(excelpath\)) s
+5 229 M
+(            return collage) s
+5 218 M
+(        except IOError:) s
+5 207 M
+(            print\("couldn't open excel"\)) s
+5 196 M
+(            return None) s
+5 185 M
+(        ) s
+5 174 M
+(def u_choose_images\(collage_inst,state\):) s
+5 163 M
+(    for item in collage_inst.items_list.values\(\):) s
+5 152 M
+(        #invoke the item method to generate possible images attribute) s
+5 141 M
+(        item.possible_images = item.select_image\(state\)) s
+5 130 M
+(        item.set_selected_image\(item.possible_images[0]['path']\)) s
+5 119 M
+(        print\(f"CHOOSING AN IMAGE{item.selected_image_path}"\)) s
+5 108 M
+(        ) s
+5 97 M
+(def make_n_save_graphic\(collage\):) s
+5 86 M
+(    collage.generate_pdf\(\)) s
+5 75 M
+(    collage.makepages\(\)) s
+5 64 M
+(    print\('plzzz so closeS'\)) s
+5 53 M
+(    grafic = collage.graphic) s
+5 42 M
+(    save_as = collage.name+'.pdf') s
+5 31 M
+(    grafic.output\(os.path.join\(GRAPHICS_EXCELS_DIR,save_as\)\)) s
+5 9 M
+(if __name__ == "__main__":) s
+_R
+S
+%%Page: (2) 25
+%%BeginPageSetup
+_S
+18 36 translate
+/pagenum 2 def
+/fname (./Desktop/amyamyamy/goodsoup/core/no_gui_main.py) def
+/fdir (./Desktop/amyamyamy/goodsoup/core) def
+/ftail (no_gui_main.py) def
+/user_header_p false def
+/user_footer_p false def
+%%EndPageSetup
+5 757 M
+(    main\(\)) s
+5 735 M
+(    ) s
+5 724 M
+(    ) s
+_R
+S
+%%Page: (1) 26
+%%BeginPageSetup
+_S
+18 36 translate
+/pagenum 1 def
+/fname (./Desktop/amyamyamy/goodsoup/core/image_indexer.py) def
+/fdir (./Desktop/amyamyamy/goodsoup/core) def
+/ftail (image_indexer.py) def
+/user_header_p false def
+/user_footer_p false def
+%%EndPageSetup
+5 757 M
+(#!/usr/bin/env python3) s
+5 746 M
+(# -*- coding: utf-8 -*-) s
+5 735 M
+(""") s
+5 724 M
+(#image index) s
+5 713 M
+(""") s
+5 691 M
+(import os) s
+5 669 M
+(def build_image_index\(images_dir\):) s
+5 658 M
+(    image_index = {}) s
+5 647 M
+(    for dirpath, _, filenames in os.walk\(images_dir\):) s
+5 636 M
+(        for f in filenames:) s
+5 625 M
+(            if f.lower\(\).endswith\(\('.png', '.jpg', '.jpeg', '.gif'\)\):) s
+5 614 M
+(                full_path = os.path.join\(dirpath, f\)) s
+5 603 M
+(                image_index[f] = full_path  # key by filename \(or tweak\)) s
+5 592 M
+(    return image_index) s
+_R
+S
+%%Page: (1) 27
+%%BeginPageSetup
+_S
+18 36 translate
+/pagenum 1 def
+/fname (./Desktop/amyamyamy/goodsoup/core/useful_funcs.py) def
+/fdir (./Desktop/amyamyamy/goodsoup/core) def
+/ftail (useful_funcs.py) def
+/user_header_p false def
+/user_footer_p false def
+%%EndPageSetup
+5 757 M
+(#!/usr/bin/env python3) s
+5 746 M
+(# -*- coding: utf-8 -*-) s
+5 735 M
+(""") s
+5 724 M
+(useful funcs core weeklysale) s
+5 713 M
+(""") s
+5 702 M
+(DPI = 300) s
+5 691 M
+(def pixtomm\(pix\):) s
+5 680 M
+(    pix = float\(pix\)) s
+5 669 M
+(    #print\('hello',pix\)) s
+5 658 M
+(    mm = pix/DPI*25.4) s
+5 647 M
+(    #print\('hellomm',mm\)) s
+5 636 M
+(    return mm) s
+5 614 M
+(def mmtopix\(mm\):) s
+5 603 M
+(    mm = float\(mm\)) s
+5 592 M
+(    pix = int\( mm/25.4*DPI\)) s
+5 581 M
+(    return pix) s
+_R
+S
+%%Page: (1) 28
+%%BeginPageSetup
+_S
+18 36 translate
+/pagenum 1 def
+/fname (./Desktop/amyamyamy/goodsoup/core/excel_parser.py) def
+/fdir (./Desktop/amyamyamy/goodsoup/core) def
+/ftail (excel_parser.py) def
+/user_header_p false def
+/user_footer_p false def
+%%EndPageSetup
+5 757 M
+(# -*- coding: utf-8 -*-) s
+5 746 M
+("""excel_parser.ipynb) s
+5 724 M
+(Automatically generated by Colab.) s
+5 702 M
+(Original file is located at) s
+5 691 M
+(    https://colab.research.google.com/drive/1ecQtjz-7PxQWmQNAWQauZyCuHAKwLl6z) s
+5 680 M
+(""") s
+5 658 M
+(# going to be excel_parser.py) s
+5 647 M
+(from pathlib import Path) s
+5 636 M
+(import pandas as pd) s
+5 625 M
+(from models.item import Item) s
+5 614 M
+(from models.collage import Collage) s
+5 603 M
+(from datetime import datetime) s
+5 592 M
+(import re) s
+5 570 M
+(def parse_excel_to_collage\(excel_path: Path\) -> Collage:) s
+5 559 M
+(    df = pd.read_excel\(excel_path\)) s
+5 537 M
+(    # Normalize column names) s
+5 526 M
+(    df.columns = [col.lower\(\).strip\(\) for col in df.columns]) s
+5 504 M
+(    required_columns = {'name', 'chinese name', 'price', 'image'}) s
+5 493 M
+(    if not required_columns.issubset\(df.columns\):) s
+5 482 M
+(        raise ValueError\(f"Excel is missing required columns: {required_columns}"\)) s
+5 460 M
+(    collage_name, start_date, end_date = extract_collage_metadata_from_filename\(excel_path.) s
+5 449 M
+(name\)) s
+5 427 M
+(    items = {) s
+5 416 M
+(        i: Item\(row['name'], row['chinese name'], row['price'], row['image']\)) s
+5 405 M
+(        for i, row in df.iterrows\(\)) s
+5 394 M
+(    }) s
+5 372 M
+(    return Collage\(name=collage_name, items_list= items, start_date=start_date, end_date=en) s
+5 361 M
+(d_date\)) s
+5 328 M
+(def extract_collage_metadata_from_filename\(filename: str\):) s
+5 317 M
+(    """) s
+5 306 M
+(    Parses filenames like 'weeklysale01102025-01112025.xlsx' and returns:) s
+5 295 M
+(    - Human-readable collage name) s
+5 284 M
+(    - start_date \(datetime\)) s
+5 273 M
+(    - end_date \(datetime\)) s
+5 262 M
+(    """) s
+5 251 M
+(    match = re.search\(r'\(\\d{8}\)-\(\\d{8}\)', filename\)) s
+5 240 M
+(    if not match:) s
+5 229 M
+(        return "Weekly Sale", None, None  # fallback) s
+5 207 M
+(    start_str, end_str = match.groups\(\)) s
+5 196 M
+(    fmt = "%m%d%Y") s
+5 174 M
+(    try:) s
+5 163 M
+(        start_date = datetime.strptime\(start_str, fmt\)) s
+5 152 M
+(        end_date = datetime.strptime\(end_str, fmt\)) s
+5 130 M
+(        # Format the name) s
+5 119 M
+(        if start_date.year == end_date.year:) s
+5 108 M
+(            if start_date.month == end_date.month:) s
+5 97 M
+(                # Jan 10\342\\200\\22311, 2025) s
+5 86 M
+(                date_str = f"{start_date.strftime\('%b'\)} {start_date.day}\342\\200\\223{end_date) s
+5 75 M
+(.day}, {start_date.year}") s
+5 64 M
+(            else:) s
+5 53 M
+(                # Jan 30 \342\\200\\223 Feb 2, 2025) s
+5 42 M
+(                date_str = f"{start_date.strftime\('%b %d'\)} \342\\200\\223 {end_date.strftime\('%) s
+5 31 M
+(b %d'\)}, {start_date.year}") s
+5 20 M
+(        else:) s
+5 9 M
+(            # Dec 31, 2024 \342\\200\\223 Jan 1, 2025) s
+_R
+S
+%%Page: (2) 29
+%%BeginPageSetup
+_S
+18 36 translate
+/pagenum 2 def
+/fname (./Desktop/amyamyamy/goodsoup/core/excel_parser.py) def
+/fdir (./Desktop/amyamyamy/goodsoup/core) def
+/ftail (excel_parser.py) def
+/user_header_p false def
+/user_footer_p false def
+%%EndPageSetup
+5 757 M
+(            date_str = f"{start_date.strftime\('%b %d, %Y'\)} \342\\200\\223 {end_date.strftime\('%) s
+5 746 M
+(b %d, %Y'\)}") s
+5 724 M
+(        name = f"Weekly Sale {date_str}") s
+5 713 M
+(        return name, start_date, end_date) s
+5 691 M
+(    except ValueError:) s
+5 680 M
+(        return "Weekly Sale", None, None) s
+_R
+S
+%%Page: (1) 30
+%%BeginPageSetup
+_S
+18 36 translate
+/pagenum 1 def
+/fname (./Desktop/amyamyamy/goodsoup/core/state.py) def
+/fdir (./Desktop/amyamyamy/goodsoup/core) def
+/ftail (state.py) def
+/user_header_p false def
+/user_footer_p false def
+%%EndPageSetup
+5 757 M
+(#!/usr/bin/env python3) s
+5 746 M
+(# -*- coding: utf-8 -*-) s
+5 735 M
+(""") s
+5 724 M
+(#for indexing imgs) s
+5 713 M
+(""") s
+5 702 M
+(import os) s
+5 691 M
+(import re) s
+5 669 M
+(from pypinyin import lazy_pinyin) s
+5 658 M
+(from core.image_utils import score_filename) s
+5 647 M
+(import tkinter as tk) s
+5 636 M
+(from tkinter import ttk, Scrollbar, Listbox, StringVar, END) s
+5 625 M
+(from app_config import IMG_EXTS, IMAGES_DIR) s
+5 614 M
+(# core/state.py) s
+5 592 M
+(class ImageMetadata:) s
+5 581 M
+(    def __init__\(self, path\):) s
+5 570 M
+(        self.file_path = path) s
+5 559 M
+(        self.name = os.path.basename\(path\)) s
+5 548 M
+(        self.category = os.path.basename\(os.path.dirname\(path\)\)) s
+5 526 M
+(        # Add created and modified timestamps \(seconds since epoch\)) s
+5 515 M
+(        stat = os.stat\(path\)) s
+5 504 M
+(        self.created_time = stat.st_ctime) s
+5 493 M
+(        self.modified_time = stat.st_mtime) s
+5 460 M
+(class AppState:) s
+5 449 M
+(    def __init__\(self, root_folder\):) s
+5 438 M
+(        self.root_folder = root_folder) s
+5 427 M
+(        self.image_list = []) s
+5 416 M
+(        self.image_dict = {}) s
+5 405 M
+(        self.categories = set\(\)) s
+5 394 M
+(        self.index_images\(\)) s
+5 350 M
+(    def index_images\(self\):) s
+5 339 M
+(        self.image_list.clear\(\)) s
+5 328 M
+(        self.image_dict.clear\(\)) s
+5 317 M
+(        self.categories.clear\(\)) s
+5 295 M
+(        for dirpath, _, files in os.walk\(self.root_folder\):) s
+5 284 M
+(            for f in files:) s
+5 273 M
+(                if f.lower\(\).endswith\(IMG_EXTS\):) s
+5 262 M
+(                    full_path = os.path.join\(dirpath, f\)) s
+5 251 M
+(                    metadata = ImageMetadata\(full_path\)) s
+5 240 M
+(                    self.image_list.append\(metadata\)) s
+5 229 M
+(                    self.image_dict[full_path] = metadata) s
+5 218 M
+(                    self.categories.add\(metadata.category\)) s
+5 207 M
+(                    ) s
+5 196 M
+(    def rename_image\(self, image_metadata, new_full_path\):) s
+5 185 M
+(        old_path = image_metadata.file_path) s
+5 174 M
+(        new_full_path = os.path.abspath\(new_full_path\)  # Ensure absolute path) s
+5 163 M
+(    ) s
+5 152 M
+(        new_dir = os.path.dirname\(new_full_path\)) s
+5 141 M
+(        if not os.path.exists\(new_dir\):) s
+5 130 M
+(            raise FileNotFoundError\(f"Target folder '{new_dir}' does not exist."\)) s
+5 119 M
+(    ) s
+5 108 M
+(        if os.path.exists\(new_full_path\):) s
+5 97 M
+(            raise FileExistsError\("File with this name already exists."\)) s
+5 86 M
+(    ) s
+5 75 M
+(        os.rename\(old_path, new_full_path\)) s
+5 64 M
+(    ) s
+5 53 M
+(        # Update metadata) s
+5 42 M
+(        image_metadata.file_path = new_full_path) s
+5 31 M
+(        image_metadata.name = os.path.basename\(new_full_path\)) s
+5 20 M
+(        image_metadata.category = os.path.basename\(new_dir\)) s
+5 9 M
+(    ) s
+_R
+S
+%%Page: (2) 31
+%%BeginPageSetup
+_S
+18 36 translate
+/pagenum 2 def
+/fname (./Desktop/amyamyamy/goodsoup/core/state.py) def
+/fdir (./Desktop/amyamyamy/goodsoup/core) def
+/ftail (state.py) def
+/user_header_p false def
+/user_footer_p false def
+%%EndPageSetup
+5 757 M
+(        # Update dict keys) s
+5 746 M
+(        del self.image_dict[old_path]) s
+5 735 M
+(        self.image_dict[new_full_path] = image_metadata) s
+5 702 M
+(    def query_images\(self, categories=None, keyword=None, sort_by='name', reverse=False\):) s
+5 691 M
+(        # If categories is None or empty list, include all images \(no category filter\)) s
+5 680 M
+(        if not categories:) s
+5 669 M
+(            filtered_images = self.image_list) s
+5 658 M
+(        else:) s
+5 647 M
+(            category_set = set\(categories\)) s
+5 636 M
+(            filtered_images = [img for img in self.image_list if img.category in category_s) s
+5 625 M
+(et]) s
+5 614 M
+(    ) s
+5 603 M
+(        keywords = []) s
+5 592 M
+(        if keyword:) s
+5 581 M
+(            keywords = [kw.strip\(\) for kw in re.split\(r'\\s+', keyword.lower\(\)\) if kw.strip\() s
+5 570 M
+(\)]) s
+5 559 M
+(            # Filter further by keyword presence \(optional but speeds scoring\)) s
+5 548 M
+(            filtered_images = [img for img in filtered_images if any\(kw in img.name.lower\(\)) s
+5 537 M
+( for kw in keywords\)]) s
+5 526 M
+(    ) s
+5 515 M
+(        if keywords:) s
+5 504 M
+(            scored = []) s
+5 493 M
+(            for img in filtered_images:) s
+5 482 M
+(                score, _ = score_filename\(img.name, keywords\)) s
+5 471 M
+(                scored.append\(\(score, img\)\)) s
+5 460 M
+(            # Sort primarily by score descending) s
+5 449 M
+(            scored.sort\(key=lambda x: x[0], reverse=True\)) s
+5 438 M
+(            result = [img for score, img in scored]) s
+5 427 M
+(            # Reverse if requested) s
+5 416 M
+(            if reverse:) s
+5 405 M
+(                result.reverse\(\)) s
+5 394 M
+(        else:) s
+5 383 M
+(            # Sort by given sort key if no keywords) s
+5 372 M
+(            if sort_by == 'name':) s
+5 361 M
+(                result = sorted\(filtered_images, key=lambda img: ''.join\(lazy_pinyin\(img.na) s
+5 350 M
+(me\)\).lower\(\), reverse=reverse\)) s
+5 339 M
+(            elif sort_by == 'created':) s
+5 328 M
+(                result = sorted\(filtered_images, key=lambda img: img.created_time, reverse=) s
+5 317 M
+(reverse\)) s
+5 306 M
+(            elif sort_by == 'modified':) s
+5 295 M
+(                result = sorted\(filtered_images, key=lambda img: img.modified_time, reverse) s
+5 284 M
+(=reverse\)) s
+5 273 M
+(            else:) s
+5 262 M
+(                raise ValueError\(f"Unknown sort key: {sort_by}"\)) s
+5 251 M
+(    ) s
+5 240 M
+(        return result) s
+5 196 M
+("""    def select_excel\(self\):) s
+5 185 M
+(        excel_file = filedialog.askopenfilename\() s
+5 174 M
+(            title="Select Excel File",) s
+5 163 M
+(            filetypes=[\("Excel files", "*.xlsx"\)]) s
+5 152 M
+(        \)) s
+5 141 M
+(        if excel_file:) s
+5 130 M
+(            basename = os.path.basename\(excel_file\)) s
+5 119 M
+(            collage = make_collage\(basename\)) s
+5 108 M
+(            if collage:) s
+5 97 M
+(                u_choose_images\(collage, self.controller.state\)) s
+5 86 M
+(                make_n_save_graphic\(collage\)) s
+5 75 M
+(                messagebox.showinfo\("Success", "Flyer created and saved!"\)) s
+5 64 M
+(            else:) s
+5 53 M
+(                messagebox.showerror\("Error", "Failed to create flyer."\)""") s
+_R
+S
+%%Page: (1) 32
+%%BeginPageSetup
+_S
+18 36 translate
+/pagenum 1 def
+/fname (./Desktop/amyamyamy/goodsoup/core/image_utils.py) def
+/fdir (./Desktop/amyamyamy/goodsoup/core) def
+/ftail (image_utils.py) def
+/user_header_p false def
+/user_footer_p false def
+%%EndPageSetup
+5 757 M
+(#!/usr/bin/env python3) s
+5 746 M
+(# -*- coding: utf-8 -*-) s
+5 735 M
+(""") s
+5 724 M
+(#image_utils.py in core) s
+5 702 M
+(""") s
+5 680 M
+(import os) s
+5 669 M
+(import re) s
+5 658 M
+(from app_config import BASE_DIR, ASSETS_DIR, IMAGES_DIR, IMG_EXTS, FALLBACK_IMAGE, FONT_PAT) s
+5 647 M
+(H_EN, FONT_PATH_CN) s
+5 636 M
+(from core.useful_funcs import DPI) s
+5 625 M
+(from PIL import Image, ImageDraw, ImageFont) s
+5 614 M
+(import warnings) s
+5 603 M
+(warnings.simplefilter\('always'\)) s
+5 581 M
+(# Make sure these are defined in your config or passed in) s
+5 570 M
+(IMAGE_SEARCH_ROOT = IMAGES_DIR) s
+5 559 M
+(image_extensions = IMG_EXTS) s
+5 548 M
+(scale = int\(DPI/70\)) s
+5 537 M
+(def extract_keywords\(text\):) s
+5 526 M
+(    return set\(re.findall\(r'[\\u4e00-\\u9fff]+|\\w+', text.lower\(\)\)\)) s
+5 493 M
+(def find_matching_images\(name, chinese_name, state, additional_search=None\):) s
+5 482 M
+(    keywords = extract_keywords\(name + " " + chinese_name\)) s
+5 460 M
+(    if additional_search:) s
+5 449 M
+(        keywords.update\(extract_keywords\(additional_search\)\)) s
+5 427 M
+(    results = []) s
+5 405 M
+(    for img_meta in state.image_list:) s
+5 394 M
+(        fname, _ = os.path.splitext\(img_meta.name.lower\(\)\)) s
+5 383 M
+(        score, matched = score_filename\(fname, keywords\)) s
+5 372 M
+(        if score > 0:) s
+5 361 M
+(            results.append\({) s
+5 350 M
+(                'path': img_meta.file_path,) s
+5 339 M
+(                'score': score,) s
+5 328 M
+(                'matched_keywords': matched,) s
+5 317 M
+(                'image': img_meta  # Include original metadata if needed) s
+5 306 M
+(            }\)) s
+5 284 M
+(    results.sort\(key=lambda x: x['score'], reverse=True\)) s
+5 273 M
+(    if results == []:) s
+5 262 M
+(        results = [{'path': FALLBACK_IMAGE, 'score': 0, 'matched_keywords': ['no results fo) s
+5 251 M
+(und']}]) s
+5 240 M
+(    return results) s
+5 218 M
+(def score_filename\(filename, keywords\):) s
+5 207 M
+(    """) s
+5 196 M
+(    Score how well a filename matches a set of keywords \(Chinese or English\).) s
+5 185 M
+(    Prioritizes:) s
+5 174 M
+(    - Exact phrase matches) s
+5 163 M
+(    - Whole-word matches) s
+5 152 M
+(    - Substring matches) s
+5 141 M
+(    """) s
+5 119 M
+(    filename = filename.lower\(\)) s
+5 108 M
+(    score = 0) s
+5 97 M
+(    matched_keywords = set\(\)) s
+5 75 M
+(    # Split filename into chunks for word-level matching) s
+5 64 M
+(    filename_words = set\(re.findall\(r'[\\u4e00-\\u9fff]+|\\w+', filename\)\)) s
+5 42 M
+(    for kw in keywords:) s
+5 31 M
+(        kw = kw.lower\(\).strip\(\)) s
+5 20 M
+(        if not kw:) s
+5 9 M
+(            continue) s
+_R
+S
+%%Page: (2) 33
+%%BeginPageSetup
+_S
+18 36 translate
+/pagenum 2 def
+/fname (./Desktop/amyamyamy/goodsoup/core/image_utils.py) def
+/fdir (./Desktop/amyamyamy/goodsoup/core) def
+/ftail (image_utils.py) def
+/user_header_p false def
+/user_footer_p false def
+%%EndPageSetup
+5 746 M
+(        # If whole phrase \(e.g. "corn beef"\) appears in filename) s
+5 735 M
+(        if kw in filename:) s
+5 724 M
+(            score += len\(kw\) * 15) s
+5 713 M
+(            matched_keywords.add\(kw\)) s
+5 702 M
+(            continue) s
+5 680 M
+(        # If keyword is a full word in filename) s
+5 669 M
+(        if kw in filename_words:) s
+5 658 M
+(            score += len\(kw\) * 12) s
+5 647 M
+(            matched_keywords.add\(kw\)) s
+5 636 M
+(            continue) s
+5 614 M
+(        # If keyword is a substring of any word) s
+5 603 M
+(        partial_match_found = False) s
+5 592 M
+(        for word in filename_words:) s
+5 581 M
+(            if kw in word:) s
+5 570 M
+(                score += len\(kw\) * 3) s
+5 559 M
+(                matched_keywords.add\(kw\)) s
+5 548 M
+(                partial_match_found = True) s
+5 537 M
+(                break) s
+5 515 M
+(        # Optional: slight boost if prefix of a word) s
+5 504 M
+(        if not partial_match_found:) s
+5 493 M
+(            for word in filename_words:) s
+5 482 M
+(                if word.startswith\(kw[:3]\):) s
+5 471 M
+(                    score += 2) s
+5 460 M
+(                    matched_keywords.add\(kw\)) s
+5 449 M
+(                    break) s
+5 427 M
+(    return score, matched_keywords) s
+5 372 M
+(def render_price_to_image\(price_text: str, box_size: tuple[int, int], fonts: dict\) -> Image) s
+5 361 M
+(.Image:) s
+5 350 M
+(    box_w, box_h = box_size) s
+5 339 M
+(    padding_sides = 6  # keep side padding as is) s
+5 317 M
+(    image = Image.new\("RGBA", box_size, \(255, 255, 255, 0\)\)) s
+5 306 M
+(    draw = ImageDraw.Draw\(image\)) s
+5 284 M
+(    font_big = fonts['big']) s
+5 273 M
+(    font_super = fonts['super']) s
+5 262 M
+(    font_unit = fonts['unit']) s
+5 251 M
+(    font_prefix = fonts.get\('prefix', font_unit\)) s
+5 229 M
+(    # Enhanced regex: prioritize multi_match first) s
+5 218 M
+(    multi_match = re.match\(r"^\\s*\(\\d+\)\\s+for\\s+\\$?\\s*\(\\d+\(?:\\.\\d{1,2}\)?\)\\s*$", price_text, ) s
+5 207 M
+(re.IGNORECASE\)) s
+5 196 M
+(    unit_match = None) s
+5 185 M
+(    if not multi_match:) s
+5 174 M
+(        unit_match = re.match\(r"^\\$?\\s*\(\\d+\)?\(?:\\.\(\\d{2}\)\)?\\s*\(?:/|\\s\)?\\s*\(\\w+\)?\\s*$", pric) s
+5 163 M
+(e_text\)) s
+5 141 M
+(    if multi_match:) s
+5 130 M
+(        qty, price_str = multi_match.groups\(\)) s
+5 119 M
+(        if '.' in price_str:) s
+5 108 M
+(            dollars, cents = price_str.split\("."\)) s
+5 97 M
+(        else:) s
+5 86 M
+(            dollars, cents = price_str, None) s
+5 64 M
+(        prefix_text = f"{qty} for") s
+5 53 M
+(        dollar_text = dollars) s
+5 42 M
+(        cents_text = f".{cents}" if cents else "") s
+5 31 M
+(        super_text = "$") s
+5 9 M
+(        prefix_bbox = draw.textbbox\(\(0, 0\), prefix_text, font=font_prefix\)) s
+_R
+S
+%%Page: (3) 34
+%%BeginPageSetup
+_S
+18 36 translate
+/pagenum 3 def
+/fname (./Desktop/amyamyamy/goodsoup/core/image_utils.py) def
+/fdir (./Desktop/amyamyamy/goodsoup/core) def
+/ftail (image_utils.py) def
+/user_header_p false def
+/user_footer_p false def
+%%EndPageSetup
+5 757 M
+(        dollar_bbox = draw.textbbox\(\(0, 0\), dollar_text, font=font_big\)) s
+5 746 M
+(        cents_bbox = draw.textbbox\(\(0, 0\), ".00", font=font_super\)) s
+5 735 M
+(        super_bbox = draw.textbbox\(\(0, 0\), super_text, font=font_super\)) s
+5 713 M
+(        prefix_w = prefix_bbox[2] - prefix_bbox[0]) s
+5 702 M
+(        prefix_h = prefix_bbox[3] - prefix_bbox[1]) s
+5 691 M
+(        dollar_w = dollar_bbox[2] - dollar_bbox[0]) s
+5 680 M
+(        dollar_h = dollar_bbox[3] - dollar_bbox[1]) s
+5 669 M
+(        cents_w = cents_bbox[2] - cents_bbox[0]) s
+5 658 M
+(        cents_h = cents_bbox[3] - cents_bbox[1]) s
+5 647 M
+(        super_w = super_bbox[2] - super_bbox[0]) s
+5 636 M
+(        super_h = super_bbox[3] - super_bbox[1]) s
+5 614 M
+(        vertical_spacing = 4) s
+5 603 M
+(        content_height = prefix_h + vertical_spacing + max\(dollar_h, super_h\)) s
+5 581 M
+(        y_offset = \(box_h - content_height\) // 2) s
+5 570 M
+(        y_prefix = y_offset) s
+5 559 M
+(        y_price = y_prefix + prefix_h + vertical_spacing) s
+5 537 M
+(        x_prefix = \(box_w - prefix_w\) // 2) s
+5 526 M
+(        draw.text\(\(x_prefix, y_prefix\), prefix_text, font=font_prefix, fill=\(0, 0, 0, 255\)\)) s
+5 504 M
+(        total_price_width = super_w + dollar_w + \(cents_w if cents else 0\)) s
+5 493 M
+(        x_price = \(box_w - total_price_width\) // 2) s
+5 482 M
+(        x_super = x_price) s
+5 471 M
+(        x_dollar = x_super + super_w) s
+5 460 M
+(        x_cents = x_dollar + dollar_w) s
+5 438 M
+(        y_super = y_price + \(dollar_h - super_h\)) s
+5 427 M
+(        draw.text\(\(x_super, y_super\), super_text, font=font_super, fill=\(0, 0, 0, 255\)\)) s
+5 416 M
+(        draw.text\(\(x_dollar, y_price\), dollar_text, font=font_big, fill=\(0, 0, 0, 255\)\)) s
+5 405 M
+(        if cents:) s
+5 394 M
+(            draw.text\(\(x_cents, y_price\), cents_text, font=font_super, fill=\(0, 0, 0, 255\)\)) s
+5 372 M
+(    elif unit_match:) s
+5 361 M
+(        dollars, cents, unit = unit_match.groups\(\)) s
+5 350 M
+(        dollars = dollars or "0") s
+5 339 M
+(        unit = unit or "") s
+5 328 M
+(        has_cents = cents is not None) s
+5 317 M
+(        cents_text = f".{cents}" if has_cents else "") s
+5 306 M
+(        dummy_cents = ".00") s
+5 284 M
+(        big_text = dollars) s
+5 273 M
+(        dollar_sign = "$") s
+5 262 M
+(        sub_text = f"/{unit}" if unit else "") s
+5 240 M
+(        big_bbox = draw.textbbox\(\(0, 0\), big_text, font=font_big\)) s
+5 229 M
+(        dollar_bbox = draw.textbbox\(\(0, 0\), dollar_sign, font=font_super\)) s
+5 218 M
+(        real_cents_bbox = draw.textbbox\(\(0, 0\), cents_text, font=font_super\)) s
+5 207 M
+(        dummy_cents_bbox = draw.textbbox\(\(0, 0\), dummy_cents, font=font_super\)) s
+5 196 M
+(        sub_bbox = draw.textbbox\(\(0, 0\), sub_text, font=font_unit\)) s
+5 174 M
+(        big_w = big_bbox[2] - big_bbox[0]) s
+5 163 M
+(        big_h = big_bbox[3] - big_bbox[1]) s
+5 152 M
+(        dollar_w = dollar_bbox[2] - dollar_bbox[0]) s
+5 141 M
+(        dollar_h = dollar_bbox[3] - dollar_bbox[1]) s
+5 130 M
+(        cents_w = dummy_cents_bbox[2] - dummy_cents_bbox[0]) s
+5 119 M
+(        cents_h = dummy_cents_bbox[3] - dummy_cents_bbox[1]) s
+5 108 M
+(        sub_w = sub_bbox[2] - sub_bbox[0]) s
+5 97 M
+(        sub_h = sub_bbox[3] - sub_bbox[1]) s
+5 75 M
+(        total_price_width = dollar_w + big_w + cents_w) s
+5 64 M
+(        x_start = \(box_w - total_price_width\) // 2) s
+5 42 M
+(        x_dollar = x_start) s
+5 31 M
+(        x_big = x_dollar + dollar_w) s
+5 20 M
+(        x_cents = x_big + big_w) s
+_R
+S
+%%Page: (4) 35
+%%BeginPageSetup
+_S
+18 36 translate
+/pagenum 4 def
+/fname (./Desktop/amyamyamy/goodsoup/core/image_utils.py) def
+/fdir (./Desktop/amyamyamy/goodsoup/core) def
+/ftail (image_utils.py) def
+/user_header_p false def
+/user_footer_p false def
+%%EndPageSetup
+5 757 M
+(        top_row_height = max\(big_h, dollar_h, cents_h\)) s
+5 746 M
+(        bottom_row_height = sub_h if sub_text else 0) s
+5 735 M
+(        vertical_spacing = 4) s
+5 713 M
+(        content_height = top_row_height + \(vertical_spacing if bottom_row_height else 0\) + ) s
+5 702 M
+(bottom_row_height) s
+5 691 M
+(        y_offset = \(box_h - content_height\) // 2) s
+5 669 M
+(        y_top = y_offset) s
+5 658 M
+(        y_sub = y_top + top_row_height + vertical_spacing) s
+5 636 M
+(        draw.text\(\(x_dollar, y_top\), dollar_sign, font=font_super, fill=\(0, 0, 0, 255\)\)) s
+5 625 M
+(        draw.text\(\(x_big, y_top\), big_text, font=font_big, fill=\(0, 0, 0, 255\)\)) s
+5 614 M
+(        if has_cents:) s
+5 603 M
+(            draw.text\(\(x_cents, y_top\), cents_text, font=font_super, fill=\(0, 0, 0, 255\)\)) s
+5 581 M
+(        if sub_text:) s
+5 570 M
+(            x_sub = x_cents + cents_w - sub_w) s
+5 559 M
+(            x_sub = min\(x_sub, box_w - sub_w - padding_sides\)) s
+5 548 M
+(            x_sub = max\(x_sub, padding_sides\)) s
+5 537 M
+(            draw.text\(\(x_sub, y_sub\), sub_text, font=font_unit, fill=\(0, 0, 0, 255\)\)) s
+5 515 M
+(    else:) s
+5 504 M
+(        fallback_bbox = draw.textbbox\(\(0, 0\), price_text, font=font_unit\)) s
+5 493 M
+(        fallback_w = fallback_bbox[2] - fallback_bbox[0]) s
+5 482 M
+(        fallback_h = fallback_bbox[3] - fallback_bbox[1]) s
+5 471 M
+(        x = \(box_w - fallback_w\) // 2) s
+5 460 M
+(        y = \(box_h - fallback_h\) // 2) s
+5 449 M
+(        draw.text\(\(x, y\), price_text, font=font_unit, fill=\(0, 0, 0, 255\)\)) s
+5 427 M
+(    return image) s
+5 405 M
+(def render_stacked_text\(chinese_text, english_text, font_size\):) s
+5 394 M
+(    # Scale fonts up) s
+5 383 M
+(    font_cn = ImageFont.truetype\(FONT_PATH_CN, font_size * scale\)) s
+5 372 M
+(    font_en = ImageFont.truetype\(FONT_PATH_EN, font_size * scale-scale\)) s
+5 350 M
+(    dummy_img = Image.new\("RGBA", \(1, 1\)\)) s
+5 339 M
+(    draw = ImageDraw.Draw\(dummy_img\)) s
+5 317 M
+(    bbox_cn = draw.textbbox\(\(0, 0\), chinese_text, font=font_cn\)) s
+5 306 M
+(    bbox_en = draw.textbbox\(\(0, 0\), english_text, font=font_en\)) s
+5 284 M
+(    w_cn = bbox_cn[2] - bbox_cn[0]) s
+5 273 M
+(    h_cn = bbox_cn[3] - bbox_cn[1]) s
+5 262 M
+(    w_en = bbox_en[2] - bbox_en[0]) s
+5 251 M
+(    h_en = bbox_en[3] - bbox_en[1]) s
+5 229 M
+(    total_width = max\(w_cn, w_en\)) s
+5 218 M
+(    total_height = h_cn + h_en) s
+5 196 M
+(    # Create hi-res canvas) s
+5 185 M
+(    img = Image.new\("RGBA", \(total_width, total_height\), \(0, 0, 0, 0\)\)) s
+5 174 M
+(    draw = ImageDraw.Draw\(img\)) s
+5 152 M
+(    # Calculate centered positions) s
+5 141 M
+(    x_cn = \(total_width - w_cn\) // 2 - bbox_cn[0]) s
+5 130 M
+(    y_cn = -bbox_cn[1]) s
+5 108 M
+(    x_en = \(total_width - w_en\) // 2 - bbox_en[0]) s
+5 97 M
+(    y_en = h_cn - bbox_en[1]) s
+5 75 M
+(    # Draw text) s
+5 64 M
+(    draw.text\(\(x_cn, y_cn\), chinese_text, font=font_cn, fill=\(0, 0, 0, 255\)\)) s
+5 53 M
+(    draw.text\(\(x_en, y_en\), english_text, font=font_en, fill=\(0, 0, 0, 255\)\)) s
+5 31 M
+(    # Downscale for smoothness) s
+5 20 M
+(    final_img = img.resize\() s
+5 9 M
+(        \(total_width // scale, total_height // scale\),) s
+_R
+S
+%%Page: (5) 36
+%%BeginPageSetup
+_S
+18 36 translate
+/pagenum 5 def
+/fname (./Desktop/amyamyamy/goodsoup/core/image_utils.py) def
+/fdir (./Desktop/amyamyamy/goodsoup/core) def
+/ftail (image_utils.py) def
+/user_header_p false def
+/user_footer_p false def
+%%EndPageSetup
+5 757 M
+(        resample=Image.LANCZOS) s
+5 746 M
+(    \)) s
+5 735 M
+(    return final_img) s
+5 702 M
+(def center_text_on_canvas\(text_img, width, height\):) s
+5 691 M
+(    # Create transparent canvas) s
+5 680 M
+(    canvas = Image.new\("RGBA", \(width, height\), \(255, 255, 255, 0\)\)) s
+5 658 M
+(    # Get position to paste \(centered\)) s
+5 647 M
+(    x = \(width - text_img.width\) // 2) s
+5 636 M
+(    y = \(height - text_img.height\) // 2) s
+5 614 M
+(    # Paste text image with alpha) s
+5 603 M
+(    canvas.paste\(text_img, \(x, y\), text_img\)) s
+5 581 M
+(    return canvas) s
+_R
+S
+%%Page: (1) 37
+%%BeginPageSetup
+_S
+18 36 translate
+/pagenum 1 def
+/fname (./Desktop/amyamyamy/goodsoup/core/__init__.py) def
+/fdir (./Desktop/amyamyamy/goodsoup/core) def
+/ftail (__init__.py) def
+/user_header_p false def
+/user_footer_p false def
+%%EndPageSetup
+5 757 M
+(#!/usr/bin/env python3) s
+5 746 M
+(# -*- coding: utf-8 -*-) s
+5 735 M
+(""") s
+5 724 M
+(init logic code) s
+5 713 M
+(#weekly graphic) s
+5 702 M
+(""") s
+_R
+S
+%%Page: (1) 38
+%%BeginPageSetup
+_S
+18 36 translate
+/pagenum 1 def
+/fname (./Desktop/amyamyamy/goodsoup/core/image_loader.py) def
+/fdir (./Desktop/amyamyamy/goodsoup/core) def
+/ftail (image_loader.py) def
+/user_header_p false def
+/user_footer_p false def
+%%EndPageSetup
+5 757 M
+(#!/usr/bin/env python3) s
+5 746 M
+(# -*- coding: utf-8 -*-) s
+5 735 M
+(""") s
+5 724 M
+(#weekly sale) s
+5 713 M
+(#core/image_loader) s
+5 702 M
+(""") s
+5 680 M
+(from PIL import Image, ImageTk) s
+5 669 M
+(import os) s
+5 647 M
+(# Two caches:) s
+5 636 M
+(_thumbnail_cache = {}  # Key: \(abs_path, size\)) s
+5 625 M
+(_fullsize_cache = {}   # Key: abs_path) s
+5 603 M
+(def load_image\(path: str, size: tuple[int, int] = None, as_tk: bool = True\):) s
+5 592 M
+(    """) s
+5 581 M
+(    Loads an image from disk. Resizes and converts to ImageTk if needed.) s
+5 559 M
+(    Args:) s
+5 548 M
+(        path \(str\): Path to image.) s
+5 537 M
+(        size \(tuple[int, int], optional\): Resize image to this size \(width, height\).) s
+5 526 M
+(        as_tk \(bool\): If True, return ImageTk.PhotoImage. Otherwise, return PIL.Image.) s
+5 504 M
+(    Returns:) s
+5 493 M
+(        ImageTk.PhotoImage or PIL.Image or None if failed.) s
+5 482 M
+(    """) s
+5 471 M
+(    abs_path = os.path.abspath\(path\)) s
+5 449 M
+(    if size:) s
+5 438 M
+(        key = \(abs_path, size\)) s
+5 427 M
+(        if key in _thumbnail_cache:) s
+5 416 M
+(            return _thumbnail_cache[key]) s
+5 405 M
+(    else:) s
+5 394 M
+(        if abs_path in _fullsize_cache:) s
+5 383 M
+(            return _fullsize_cache[abs_path]) s
+5 361 M
+(    try:) s
+5 350 M
+(        with Image.open\(abs_path\) as img:) s
+5 339 M
+(            img = img.convert\("RGBA"\)) s
+5 328 M
+(            if size:) s
+5 317 M
+(                img = img.resize\(size, Image.LANCZOS\)) s
+5 306 M
+(            if as_tk:) s
+5 295 M
+(                img_tk = ImageTk.PhotoImage\(img\)) s
+5 284 M
+(                if size:) s
+5 273 M
+(                    _thumbnail_cache[key] = img_tk) s
+5 262 M
+(                return img_tk) s
+5 251 M
+(            else:) s
+5 240 M
+(                # Return copy to keep it usable after `with`) s
+5 229 M
+(                img_copy = img.copy\(\)) s
+5 218 M
+(                if not size:) s
+5 207 M
+(                    _fullsize_cache[abs_path] = img_copy) s
+5 196 M
+(                return img_copy) s
+5 174 M
+(    except Exception as e:) s
+5 163 M
+(        print\(f"[ImageLoader] \342\\235\\214 Failed to load image '{path}': {e}"\)) s
+5 152 M
+(        return None) s
+5 130 M
+(def clear_cache\(\):) s
+5 119 M
+(    _thumbnail_cache.clear\(\)) s
+5 108 M
+(    _fullsize_cache.clear\(\)) s
+_R
+S
+%%Page: (1) 39
+%%BeginPageSetup
+_S
+18 36 translate
+/pagenum 1 def
+/fname (./Desktop/amyamyamy/goodsoup/models/collage2.py) def
+/fdir (./Desktop/amyamyamy/goodsoup/models) def
+/ftail (collage2.py) def
+/user_header_p false def
+/user_footer_p false def
+%%EndPageSetup
+5 757 M
+(#!/usr/bin/env python3) s
+5 746 M
+(# -*- coding: utf-8 -*-) s
+5 735 M
+(""") s
+5 724 M
+(class Collage) s
+5 713 M
+(""") s
+5 691 M
+(import os) s
+5 680 M
+(from app_config import {) s
+5 669 M
+(    BASE_DIR, ASSETS_DIR, FONT_PATH_BOLD, FONT_PATH_CN, FONT_PATH_EN, FILLER_PATH, PRICEBOX) s
+5 658 M
+(_PATH) s
+5 647 M
+(}) s
+5 636 M
+(from PIL import Image, ImageFont, ImageDraw) s
+5 625 M
+(from models.item import Item) s
+5 614 M
+(from core.image_loader import load_image) s
+5 592 M
+(COLUMNS = 3) s
+5 570 M
+(SQ_SIZE = \(2160,2160\)) s
+5 548 M
+(class Collage2:) s
+5 537 M
+(    def __init__\(self,name,items_list,start_date=None,end_date=None\):) s
+5 526 M
+(        self.name = name) s
+5 515 M
+(        self.items_list = items_list) s
+5 504 M
+(        self.start = start_date) s
+5 493 M
+(        self.end = end_date) s
+5 482 M
+(        self.graphic = None) s
+5 460 M
+(    def find_longest_names\(self\):) s
+5 449 M
+(        longest_name = '') s
+5 438 M
+(        longest_chinese_name = '') s
+5 427 M
+(    ) s
+5 416 M
+(        for item in self.items_list.values\(\):) s
+5 405 M
+(            print\(item\)) s
+5 394 M
+(            if len\(item.name\) > len\(longest_name\):) s
+5 383 M
+(                longest_name = item.name) s
+5 372 M
+(            if len\(item.chinese_name\) > len\(longest_chinese_name\):) s
+5 361 M
+(                longest_chinese_name = item.chinese_name) s
+5 350 M
+(        self.longest,self.longest_c = longest_name, longest_chinese_name) s
+5 328 M
+(    #call text_size) s
+5 317 M
+(    def text_size\(self\):) s
+5 306 M
+(        # Get longest names) s
+5 295 M
+(        self.find_longest_names\(\)) s
+5 284 M
+(        longest_en = self.longest) s
+5 273 M
+(        longest_cn = self.longest_c) s
+5 262 M
+(        #print\(f'here i am and the longest_en word is: {longest_en}, {longest_cn}'\)) s
+5 251 M
+(        #print\(f'aqui is the rect wxh: {self.rectw} {self.recth}'\)) s
+5 240 M
+(        ### HERE WE'RE SETTING HOW LARGE THE TEXT FOR THE NAMES' OF ITEMS WILL BE) s
+5 229 M
+(        box_width = int\(mmtopix\(self.rectw\)\)) s
+5 218 M
+(        box_height = int\(mmtopix\(self.recth\)\)) s
+5 207 M
+(    ) s
+5 196 M
+(        max_font_size = 100  # Try from large to small) s
+5 185 M
+(    ) s
+5 174 M
+(        for size in range\(max_font_size, 5, -1\):) s
+5 163 M
+(            font_cn = ImageFont.truetype\(FONT_PATH_CN, size\)) s
+5 152 M
+(            font_en = ImageFont.truetype\(FONT_PATH_EN, size\)) s
+5 141 M
+(    ) s
+5 130 M
+(            img = Image.new\("RGB", \(box_width, box_height\), "white"\)) s
+5 119 M
+(            draw = ImageDraw.Draw\(img\)) s
+5 108 M
+(    ) s
+5 97 M
+(            # Use textbbox to get dimensions) s
+5 86 M
+(            bbox_cn = draw.textbbox\(\(0, 0\), longest_cn, font=font_cn\)) s
+5 75 M
+(            w_cn = bbox_cn[2] - bbox_cn[0]) s
+5 64 M
+(            h_cn = bbox_cn[3] - bbox_cn[1]) s
+5 53 M
+(    ) s
+5 42 M
+(            bbox_en = draw.textbbox\(\(0, 0\), longest_en, font=font_en\)) s
+5 31 M
+(            w_en = bbox_en[2] - bbox_en[0]) s
+5 20 M
+(            h_en = bbox_en[3] - bbox_en[1]) s
+5 9 M
+(    ) s
+_R
+S
+%%Page: (2) 40
+%%BeginPageSetup
+_S
+18 36 translate
+/pagenum 2 def
+/fname (./Desktop/amyamyamy/goodsoup/models/collage2.py) def
+/fdir (./Desktop/amyamyamy/goodsoup/models) def
+/ftail (collage2.py) def
+/user_header_p false def
+/user_footer_p false def
+%%EndPageSetup
+5 757 M
+(            total_height = h_cn + h_en) s
+5 746 M
+(            max_width = max\(w_cn, w_en\)) s
+5 735 M
+(            #print\(f'total_height= {total_height}, total_width = {max_width}'\)) s
+5 724 M
+(            #print\(f'lets see if max font size for loop runs {size}'\)) s
+5 713 M
+(            if total_height <= box_height and max_width <= box_width:) s
+5 702 M
+(                set2= size  # Save the first fitting font size) s
+5 691 M
+(                break  # Done! We found the largest one that fits) s
+5 680 M
+(        else:) s
+5 669 M
+(            set2= 10  # Fallback if none fit) s
+5 658 M
+(        self.max_text_size = set2) s
+5 647 M
+(        print\(f"\342\\234\\205 Max font size that fits: {self.max_text_size}"\)) s
+5 636 M
+(    ) s
+5 625 M
+(    def generate_graphics\(\)) s
+_R
+S
+%%Page: (1) 41
+%%BeginPageSetup
+_S
+18 36 translate
+/pagenum 1 def
+/fname (./Desktop/amyamyamy/goodsoup/models/item.py) def
+/fdir (./Desktop/amyamyamy/goodsoup/models) def
+/ftail (item.py) def
+/user_header_p false def
+/user_footer_p false def
+%%EndPageSetup
+5 757 M
+(#!/usr/bin/env python3) s
+5 746 M
+(# -*- coding: utf-8 -*-) s
+5 735 M
+(""") s
+5 724 M
+(Created on Sat Jun 21 00:44:10 2025) s
+5 702 M
+(#weekly sale) s
+5 691 M
+(""") s
+5 680 M
+(from app_config import IMAGES_DIR, ASSETS_DIR, IMG_EXTS, FALLBACK_IMAGE) s
+5 669 M
+(import os) s
+5 658 M
+(from core.image_utils import find_matching_images  # your utility function) s
+5 647 M
+(from PIL import Image) s
+5 625 M
+(import warnings) s
+5 614 M
+(warnings.simplefilter\('always'\)) s
+5 603 M
+(FOLDER_PATH = IMAGES_DIR  # used for quick validation) s
+5 581 M
+(import os) s
+5 559 M
+(class Item:) s
+5 548 M
+(    def __init__\(self, name, chinese_name, price, image_hint\):) s
+5 537 M
+(        self.name = name) s
+5 526 M
+(        self.chinese_name = str\(chinese_name\)) s
+5 515 M
+(        self.price = str\(price\)) s
+5 504 M
+(        self.image_hint = str\(image_hint\)  # Formerly imagepath) s
+5 493 M
+(        self.selected_image_path = None) s
+5 482 M
+(        self.possible_images = []) s
+5 460 M
+(    def __repr__\(self\):) s
+5 449 M
+(        return f'item: {self.name} at {self.price}') s
+5 438 M
+(    ) s
+5 427 M
+(    def select_image\(self, state\):) s
+5 416 M
+(        if self.image_hint.lower\(\) == "blank":) s
+5 405 M
+(            return [{'path': FALLBACK_IMAGE, 'score': 100, 'matched_keywords': ['blank']}]) s
+5 394 M
+(    ) s
+5 383 M
+(        elif not self.image_hint:) s
+5 372 M
+(            return find_matching_images\(self.name, self.chinese_name, state\)) s
+5 361 M
+(    ) s
+5 350 M
+(        elif self.image_hint.lower\(\).endswith\(IMG_EXTS\):) s
+5 339 M
+(            full_path = os.path.join\(FOLDER_PATH, self.image_hint\)) s
+5 328 M
+(            if os.path.exists\(full_path\):) s
+5 317 M
+(                return [{'path': full_path, 'score': 100, 'matched_keywords': ['direct matc) s
+5 306 M
+(h']}]) s
+5 295 M
+(            else:) s
+5 284 M
+(                return find_matching_images\(self.name, self.chinese_name, state\)) s
+5 273 M
+(    ) s
+5 262 M
+(        else:) s
+5 251 M
+(            return find_matching_images\(self.name, self.chinese_name, state, additional_sea) s
+5 240 M
+(rch=self.image_hint\)) s
+5 185 M
+(    def set_selected_image\(self, path\):) s
+5 174 M
+(        """) s
+5 163 M
+(        Assigns selected_image_path safely.) s
+5 152 M
+(        Falls back to blank if path is invalid or None.) s
+5 141 M
+(        """) s
+5 130 M
+(        if path and os.path.isfile\(path\):) s
+5 119 M
+(            self.selected_image_path = path) s
+5 108 M
+(            print\(f"\342\\234\\205 Image set: {path}"\)) s
+5 97 M
+(        else:) s
+5 86 M
+(            fallback = os.path.join\(ASSETS_DIR, FALLBACK_IMAGE\)) s
+5 75 M
+(            self.selected_image_path = fallback) s
+5 64 M
+(            print\(f"\342\\232\240\357\270\\217 Invalid path. Using fallback: {fallback}"\)) s
+5 42 M
+(    def foodpic\(self\):) s
+5 31 M
+(        """) s
+5 20 M
+(        Return a PIL image \(500x500 transparent square\),) s
+5 9 M
+(        centered and resized.) s
+_R
+S
+%%Page: (2) 42
+%%BeginPageSetup
+_S
+18 36 translate
+/pagenum 2 def
+/fname (./Desktop/amyamyamy/goodsoup/models/item.py) def
+/fdir (./Desktop/amyamyamy/goodsoup/models) def
+/ftail (item.py) def
+/user_header_p false def
+/user_footer_p false def
+%%EndPageSetup
+5 757 M
+(        """) s
+5 746 M
+(        path = self.selected_image_path or os.path.join\(FOLDER_PATH, FALLBACK_IMAGE\)) s
+5 724 M
+(        try:) s
+5 713 M
+(            base_img = Image.open\(path\)) s
+5 702 M
+(        except IOError:) s
+5 691 M
+(            print\("\342\\232\240\357\270\\217 Failed to open image. Using fallback."\)) s
+5 680 M
+(            base_img = Image.open\(os.path.join\(FOLDER_PATH, FALLBACK_IMAGE\)\)) s
+5 658 M
+(        square_w = 1000) s
+5 647 M
+(        canvas = Image.new\('RGBA', \(square_w, square_w\), \(255, 255, 255, 255\)\)) s
+5 625 M
+(        w, h = base_img.size) s
+5 614 M
+(        ratio = min\(square_w / w, square_w / h\)) s
+5 603 M
+(        new_size = \(int\(w * ratio\), int\(h * ratio\)\)) s
+5 592 M
+(        resized = base_img.resize\(new_size, resample=Image.BILINEAR\)) s
+5 570 M
+(        paste_x = \(square_w - new_size[0]\) // 2) s
+5 559 M
+(        paste_y = \(square_w - new_size[1]\) // 2) s
+5 548 M
+(        canvas.paste\(resized, \(paste_x, paste_y\), resized if resized.mode == 'RGBA' else No) s
+5 537 M
+(ne\)) s
+5 515 M
+(        return canvas) s
+_R
+S
+%%Page: (1) 43
+%%BeginPageSetup
+_S
+18 36 translate
+/pagenum 1 def
+/fname (./Desktop/amyamyamy/goodsoup/models/collage.py) def
+/fdir (./Desktop/amyamyamy/goodsoup/models) def
+/ftail (collage.py) def
+/user_header_p false def
+/user_footer_p false def
+%%EndPageSetup
+5 746 M
+(#!/usr/bin/env python3) s
+5 735 M
+(# -*- coding: utf-8 -*-) s
+5 724 M
+(""") s
+5 713 M
+(class Collage) s
+5 702 M
+(""") s
+5 680 M
+(#images in assets folder ) s
+5 669 M
+(import os) s
+5 658 M
+(from app_config import BASE_DIR, ASSETS_DIR, HEADER_PATH, BHEADER_PATH, FONT_PATH_CN, FONT_) s
+5 647 M
+(PATH_EN, FONT_PATH_BOLD,FILLER_PATH, PRICEBOX_PATH) s
+5 636 M
+(from PIL import Image, ImageFont, ImageDraw) s
+5 625 M
+(from models.item import Item) s
+5 614 M
+(from core.image_loader import load_image) s
+5 603 M
+(from core.useful_funcs import mmtopix, pixtomm) s
+5 592 M
+(from core.image_utils import render_price_to_image, render_stacked_text, center_text_on_can) s
+5 581 M
+(vas, scale) s
+5 570 M
+(from fpdf import FPDF, Align) s
+5 559 M
+(import math) s
+5 548 M
+(from io import BytesIO) s
+5 537 M
+(import warnings) s
+5 526 M
+(warnings.simplefilter\('always'\)) s
+5 504 M
+(COLUMNS_NO=2) s
+5 482 M
+(A4_SIZE_MM = \(210, 297\)          # A4: 210mm x 297mm) s
+5 471 M
+(LEGAL_SIZE_MM = \(215.9, 355.6\)   # Legal: 8.5" x 14" converted to mm) s
+5 460 M
+(TABLOID_SIZE_MM = \(279.4, 431.8\) # Tabloid: 11" x 17" converted to mm) s
+5 449 M
+(LONGASS_SIZE = \(150,700\)) s
+5 427 M
+(pdfsize = LONGASS_SIZE) s
+5 416 M
+(class Collage:) s
+5 405 M
+(    def __init__\(self,name,items_list,start_date=None,end_date=None\):) s
+5 394 M
+(        self.name= name) s
+5 383 M
+(        self.items_list=items_list) s
+5 372 M
+(        self.start = start_date) s
+5 361 M
+(        self.end = end_date) s
+5 350 M
+(        self.graphic = None) s
+5 339 M
+(        ) s
+5 328 M
+(        ) s
+5 317 M
+(    def find_longest_names\(self\):) s
+5 306 M
+(        longest_name = '') s
+5 295 M
+(        longest_chinese_name = '') s
+5 284 M
+(    ) s
+5 273 M
+(        for item in self.items_list.values\(\):) s
+5 262 M
+(            print\(item\)) s
+5 251 M
+(            if len\(item.name\) > len\(longest_name\):) s
+5 240 M
+(                longest_name = item.name) s
+5 229 M
+(            if len\(item.chinese_name\) > len\(longest_chinese_name\):) s
+5 218 M
+(                longest_chinese_name = item.chinese_name) s
+5 207 M
+(        self.longest,self.longest_c = longest_name, longest_chinese_name) s
+5 185 M
+(            ) s
+5 174 M
+(    def headers\(self\):) s
+5 163 M
+(        if self.graphic is not None:) s
+5 152 M
+(            pdfw, pdfh = self.graphic.epw, self.graphic.eph) s
+5 141 M
+(    ) s
+5 130 M
+(            # --- Top Header ---) s
+5 119 M
+(            if os.path.isfile\(HEADER_PATH\):) s
+5 108 M
+(                with Image.open\(HEADER_PATH\) as header_img:) s
+5 97 M
+(                    top = header_img.convert\('RGBA'\).copy\(\)) s
+5 86 M
+(    ) s
+5 75 M
+(                w, h = top.size) s
+5 64 M
+(                self.header_ratio = h / w) s
+5 53 M
+(                header_h = pdfw * self.header_ratio) s
+5 42 M
+(    ) s
+5 31 M
+(                if header_h <= pdfh / 2:) s
+5 20 M
+(                    self.top = top) s
+5 9 M
+(                    self.header_h = header_h) s
+_R
+S
+%%Page: (2) 44
+%%BeginPageSetup
+_S
+18 36 translate
+/pagenum 2 def
+/fname (./Desktop/amyamyamy/goodsoup/models/collage.py) def
+/fdir (./Desktop/amyamyamy/goodsoup/models) def
+/ftail (collage.py) def
+/user_header_p false def
+/user_footer_p false def
+%%EndPageSetup
+5 757 M
+(                    print\(f'header height = {self.header_h}'\)) s
+5 746 M
+(                else:) s
+5 735 M
+(                    print\(f'header too tall: {header_h}px > half of page height \({pdfh / 2}) s
+5 724 M
+(px\)'\)) s
+5 713 M
+(    ) s
+5 702 M
+(            # --- Bottom Header ---) s
+5 691 M
+(            if os.path.isfile\(BHEADER_PATH\):) s
+5 680 M
+(                with Image.open\(BHEADER_PATH\) as bheader_img:) s
+5 669 M
+(                    bottom = bheader_img.convert\('RGBA'\).copy\(\)) s
+5 658 M
+(    ) s
+5 647 M
+(                w, h = bottom.size) s
+5 636 M
+(                self.bheader_ratio = h / w) s
+5 625 M
+(                bheader_h = pdfw * self.bheader_ratio) s
+5 614 M
+(    ) s
+5 603 M
+(                if bheader_h <= pdfh / 2:) s
+5 592 M
+(                    self.bottom = bottom) s
+5 581 M
+(                    self.bheader_h = bheader_h) s
+5 570 M
+(                    print\(f'bottom header height = {self.bheader_h}'\)) s
+5 559 M
+(                else:) s
+5 548 M
+(                    print\(f'bottom header too tall: {bheader_h}px > half of page height \({p) s
+5 537 M
+(dfh / 2}px\)'\)) s
+5 504 M
+(      ) s
+5 493 M
+(        ) s
+5 482 M
+(        ) s
+5 471 M
+(        # header = os.path.join\(ASSETS_DIR,'headerpic.png'\)) s
+5 460 M
+(        # image1 = Image.open\(header\)) s
+5 449 M
+(        # bottomheader = os.path.join\(ASSETS_DIR,'bottomlogo.png'\)) s
+5 438 M
+(        # image2 = Image.open\(bottomheader\)) s
+5 427 M
+(        # top_header = image1.resize\(\(2168,760\),resample=Image.LANCZOS\)) s
+5 416 M
+(        # bottom_header = image2.resize\(\(800,200\),resample=Image.LANCZOS\)) s
+5 394 M
+(        # self.header = top_header # file path goes here) s
+5 383 M
+(        # self.bottom = bottom_header #file path goes here) s
+5 372 M
+(        # self.collage_pgs = None # how many pgs will it need) s
+5 361 M
+(        ) s
+5 350 M
+(    def generate_pdf\(self\):) s
+5 339 M
+(        # check there is a selected image for each item ) s
+5 328 M
+(        #if {) s
+5 317 M
+(               # }) s
+5 306 M
+(        pdf = FPDF\(unit='mm',format=pdfsize\)) s
+5 295 M
+(        pdf.set_margin\(0\)) s
+5 284 M
+(        self.graphic=pdf) s
+5 262 M
+(        self.headers\(\)) s
+5 251 M
+(        ) s
+5 240 M
+(        #calculate collage area) s
+5 229 M
+(        collage_spaceh = pdf.eph-\(self.header_h+self.bheader_h\)) s
+5 218 M
+(        self.collage_space = \(pdf.epw,collage_spaceh\)) s
+5 207 M
+(        self.collage_cols = COLUMNS_NO #how many items per column) s
+5 196 M
+(        self.rectw = pdf.epw/self.collage_cols) s
+5 185 M
+(        self.max_rows = math.floor\(collage_spaceh/self.rectw\)) s
+5 174 M
+(        self.recth = collage_spaceh/self.max_rows) s
+5 163 M
+(        print\(f'RECTW {self.rectw}, RECTH {self.recth}'\)) s
+5 152 M
+(        ) s
+5 141 M
+(        #items pp) s
+5 130 M
+(        print\(f'look here \\n max rows = {self.max_rows} and collage_cols={self.collage_cols) s
+5 119 M
+(}'\)) s
+5 108 M
+(        self.items_pp = self.collage_cols*self.max_rows) s
+5 97 M
+(        self.pages = math.ceil\(len\(self.items_list\)/self.items_pp\)) s
+5 86 M
+(        print\(f'\\n\\n look here self pages = {self.pages} and self.items_pp={self.items_pp}') s
+5 75 M
+(\) ) s
+5 64 M
+(        self.text_size\(\)) s
+5 53 M
+(        ) s
+5 42 M
+(    #call text_size) s
+5 31 M
+(    def text_size\(self\):) s
+5 20 M
+(        # Get longest names) s
+5 9 M
+(        self.find_longest_names\(\)) s
+_R
+S
+%%Page: (3) 45
+%%BeginPageSetup
+_S
+18 36 translate
+/pagenum 3 def
+/fname (./Desktop/amyamyamy/goodsoup/models/collage.py) def
+/fdir (./Desktop/amyamyamy/goodsoup/models) def
+/ftail (collage.py) def
+/user_header_p false def
+/user_footer_p false def
+%%EndPageSetup
+5 757 M
+(        longest_en = self.longest) s
+5 746 M
+(        longest_cn = self.longest_c) s
+5 735 M
+(        #print\(f'here i am and the longest_en word is: {longest_en}, {longest_cn}'\)) s
+5 724 M
+(        #print\(f'aqui is the rect wxh: {self.rectw} {self.recth}'\)) s
+5 713 M
+(        ### HERE WE'RE SETTING HOW LARGE THE TEXT FOR THE NAMES' OF ITEMS WILL BE) s
+5 702 M
+(        box_width = int\(mmtopix\(self.rectw\)\)) s
+5 691 M
+(        box_height = int\(mmtopix\(self.recth\)\)) s
+5 680 M
+(    ) s
+5 669 M
+(        max_font_size = 100  # Try from large to small) s
+5 658 M
+(    ) s
+5 647 M
+(        for size in range\(max_font_size, 5, -1\):) s
+5 636 M
+(            font_cn = ImageFont.truetype\(FONT_PATH_CN, size\)) s
+5 625 M
+(            font_en = ImageFont.truetype\(FONT_PATH_EN, size\)) s
+5 614 M
+(    ) s
+5 603 M
+(            img = Image.new\("RGB", \(box_width, box_height\), "white"\)) s
+5 592 M
+(            draw = ImageDraw.Draw\(img\)) s
+5 581 M
+(    ) s
+5 570 M
+(            # Use textbbox to get dimensions) s
+5 559 M
+(            bbox_cn = draw.textbbox\(\(0, 0\), longest_cn, font=font_cn\)) s
+5 548 M
+(            w_cn = bbox_cn[2] - bbox_cn[0]) s
+5 537 M
+(            h_cn = bbox_cn[3] - bbox_cn[1]) s
+5 526 M
+(    ) s
+5 515 M
+(            bbox_en = draw.textbbox\(\(0, 0\), longest_en, font=font_en\)) s
+5 504 M
+(            w_en = bbox_en[2] - bbox_en[0]) s
+5 493 M
+(            h_en = bbox_en[3] - bbox_en[1]) s
+5 482 M
+(    ) s
+5 471 M
+(            total_height = h_cn + h_en) s
+5 460 M
+(            max_width = max\(w_cn, w_en\)) s
+5 449 M
+(            #print\(f'total_height= {total_height}, total_width = {max_width}'\)) s
+5 438 M
+(            #print\(f'lets see if max font size for loop runs {size}'\)) s
+5 427 M
+(            if total_height <= box_height and max_width <= box_width:) s
+5 416 M
+(                set2= size  # Save the first fitting font size) s
+5 405 M
+(                break  # Done! We found the largest one that fits) s
+5 394 M
+(        else:) s
+5 383 M
+(            set2= 10  # Fallback if none fit) s
+5 372 M
+(        self.max_text_size = set2) s
+5 361 M
+(        print\(f"\342\\234\\205 Max font size that fits: {self.max_text_size}"\)) s
+5 350 M
+(            ) s
+5 339 M
+(    def makepages\(self\):) s
+5 328 M
+(        pdf = self.graphic) s
+5 317 M
+(        print\('hi im at makepages'\)) s
+5 306 M
+(        items = self.items_list) s
+5 295 M
+(        header = self.top) s
+5 284 M
+(        bottomheader = self.bottom) s
+5 273 M
+(        bheadh_mm = self.bheader_h) s
+5 262 M
+(        print\(self.pages\)) s
+5 251 M
+(    ) s
+5 240 M
+(        for i in range\(self.pages\):) s
+5 229 M
+(            print\(f'i={i},itemspp={self.items_pp}'\)) s
+5 218 M
+(            pdf.add_page\(\)) s
+5 207 M
+(            pdf.image\(header, x=0, y=0, w=pdf.epw\)) s
+5 196 M
+(            pdf.image\(bottomheader, x=0, y=pdf.eph - bheadh_mm, w=pdf.epw\)) s
+5 185 M
+(    ) s
+5 174 M
+(            for j in range\(i * self.items_pp, \(i + 1\) * self.items_pp\):) s
+5 163 M
+(                local_index = j % self.items_pp) s
+5 152 M
+(                xcol = \(local_index % self.collage_cols\) * self.rectw) s
+5 141 M
+(                yrow = \(local_index // self.collage_cols\) * self.recth + self.header_h) s
+5 130 M
+(    ) s
+5 119 M
+(                frame = Image.new\('RGBA', \(mmtopix\(self.rectw\), mmtopix\(self.recth\)\), \(250,) s
+5 108 M
+( 20, 140, 100\)\)) s
+5 97 M
+(    ) s
+5 86 M
+(                if j < len\(items\):) s
+5 75 M
+(                    item = items[j]) s
+5 64 M
+(                    img = item.foodpic\(\).convert\("RGBA"\)) s
+5 53 M
+(                    img = img.resize\(\(mmtopix\(self.rectw\), mmtopix\(self.rectw\)\)\)) s
+5 42 M
+(                    frame.paste\(img, \(0, 0\)\)) s
+5 31 M
+(    ) s
+5 20 M
+(                    # --- PRICE BOX ---) s
+5 9 M
+(                    with Image.open\(PRICEBOX_PATH\) as pb_img:) s
+_R
+S
+%%Page: (4) 46
+%%BeginPageSetup
+_S
+18 36 translate
+/pagenum 4 def
+/fname (./Desktop/amyamyamy/goodsoup/models/collage.py) def
+/fdir (./Desktop/amyamyamy/goodsoup/models) def
+/ftail (collage.py) def
+/user_header_p false def
+/user_footer_p false def
+%%EndPageSetup
+5 757 M
+(                        pricebox = pb_img.convert\('RGBA'\).copy\(\)) s
+5 746 M
+(    ) s
+5 735 M
+(                    resized_pricebox = pricebox.resize\() s
+5 724 M
+(                        \(int\(mmtopix\(self.rectw\) / 2\), int\(mmtopix\(self.recth\) / 3\)\),) s
+5 713 M
+(                        resample=Image.LANCZOS) s
+5 702 M
+(                    \).copy\(\)) s
+5 691 M
+(    ) s
+5 680 M
+(                    base_font_scale = resized_pricebox.height / 3) s
+5 669 M
+(                    min_size = 10) s
+5 658 M
+(                    big_size = max\(int\(base_font_scale * 1.2\), min_size\)) s
+5 647 M
+(                    super_size = max\(int\(base_font_scale * 0.72\), min_size\)) s
+5 636 M
+(                    unit_size = max\(int\(base_font_scale * 0.5\), min_size\)) s
+5 625 M
+(                    prefix_size = max\(int\(base_font_scale * 0.72\), min_size\)) s
+5 614 M
+(    ) s
+5 603 M
+(                    fonts = {) s
+5 592 M
+(                        'big': ImageFont.truetype\(FONT_PATH_BOLD, size=big_size\),) s
+5 581 M
+(                        'super': ImageFont.truetype\(FONT_PATH_EN, size=super_size\),) s
+5 570 M
+(                        'unit': ImageFont.truetype\(FONT_PATH_EN, size=unit_size\),) s
+5 559 M
+(                        'prefix': ImageFont.truetype\(FONT_PATH_EN, size=prefix_size\),) s
+5 548 M
+(                    }) s
+5 537 M
+(    ) s
+5 526 M
+(                    scale_factor = 4) s
+5 515 M
+(                    large_box_size = \() s
+5 504 M
+(                        resized_pricebox.width * scale_factor,) s
+5 493 M
+(                        resized_pricebox.height * scale_factor) s
+5 482 M
+(                    \)) s
+5 471 M
+(                    fonts_large = {) s
+5 460 M
+(                        k: ImageFont.truetype\(f.path, size=f.size * scale_factor\)) s
+5 449 M
+(                        for k, f in fonts.items\(\)) s
+5 438 M
+(                    }) s
+5 427 M
+(    ) s
+5 416 M
+(                    hires_price_image = render_price_to_image\() s
+5 405 M
+(                        price_text=item.price.strip\(\),) s
+5 394 M
+(                        box_size=large_box_size,) s
+5 383 M
+(                        fonts=fonts_large) s
+5 372 M
+(                    \)) s
+5 361 M
+(    ) s
+5 350 M
+(                    raw_price_image = hires_price_image.resize\() s
+5 339 M
+(                        \(int\(resized_pricebox.width * 0.8\), int\(resized_pricebox.height * 0) s
+5 328 M
+(.8\)\),) s
+5 317 M
+(                        resample=Image.LANCZOS) s
+5 306 M
+(                    \)) s
+5 295 M
+(                    offset_x = \(resized_pricebox.width - raw_price_image.width\) // 2) s
+5 284 M
+(                    offset_y = \(resized_pricebox.height - raw_price_image.height\) // 2) s
+5 273 M
+(                    resized_pricebox.paste\(raw_price_image, \(offset_x, offset_y\), raw_price) s
+5 262 M
+(_image\)) s
+5 251 M
+(    ) s
+5 240 M
+(                    # Paste pricebox first) s
+5 229 M
+(                    pricebox_x = frame.width - resized_pricebox.width - 1) s
+5 218 M
+(                    pricebox_y = frame.height - resized_pricebox.height) s
+5 207 M
+(                    frame.paste\(resized_pricebox, \(pricebox_x, pricebox_y\), resized_pricebo) s
+5 196 M
+(x\)) s
+5 185 M
+(    ) s
+5 174 M
+(                    # --- STACKED TEXT ---) s
+5 163 M
+(                    stacked_text_img = render_stacked_text\(item.chinese_name, item.name, fo) s
+5 152 M
+(nt_size=self.max_text_size\)) s
+5 141 M
+(                    centered_text = center_text_on_canvas\() s
+5 130 M
+(                        stacked_text_img,) s
+5 119 M
+(                        int\(mmtopix\(self.rectw\) / 2\),) s
+5 108 M
+(                        int\(mmtopix\(self.rectw\) / 3\)) s
+5 97 M
+(                    \)) s
+5 86 M
+(                    text_y = frame.height - centered_text.height) s
+5 75 M
+(                    text_y = max\(0, text_y\)  # avoid negative placement) s
+5 64 M
+(                    frame.paste\(centered_text, \(0, text_y\), centered_text\)) s
+5 53 M
+(    ) s
+5 42 M
+(                else:) s
+5 31 M
+(                    with Image.open\(FILLER_PATH\) as filler_img:) s
+5 20 M
+(                        img = filler_img.convert\('RGBA'\).resize\(\(frame.width, frame.width\)\)) s
+5 9 M
+(                        frame.paste\(img, \(0, 0\)\)) s
+_R
+S
+%%Page: (5) 47
+%%BeginPageSetup
+_S
+18 36 translate
+/pagenum 5 def
+/fname (./Desktop/amyamyamy/goodsoup/models/collage.py) def
+/fdir (./Desktop/amyamyamy/goodsoup/models) def
+/ftail (collage.py) def
+/user_header_p false def
+/user_footer_p false def
+%%EndPageSetup
+5 757 M
+(    ) s
+5 746 M
+(                buffer = BytesIO\(\)) s
+5 735 M
+(                frame.convert\("RGB"\).save\(buffer, format="PNG"\)) s
+5 724 M
+(                buffer.seek\(0\)) s
+5 713 M
+(                pdf.image\(buffer, w=self.rectw, h=self.recth, x=xcol, y=yrow\)) s
+5 680 M
+(        ) s
+5 669 M
+(        ) s
+5 658 M
+(        ) s
+5 625 M
+(    def __str__\(self\):) s
+5 614 M
+(        return f'new collage instance made: {self.name}, start { self.start}, end {self.end) s
+5 603 M
+(}') s
+_R
+S
+%%Trailer
+%%Pages: 47
+%%DocumentNeededResources: font Courier-Bold Courier 
+%%EOF
