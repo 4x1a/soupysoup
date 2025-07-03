@@ -5,7 +5,7 @@ class Collage
 """
 
 import os
-from app_config import BASE_DIR, ASSETS_DIR, FONT_PATH_BOLD, FONT_PATH_CN, FONT_PATH_EN, FILLER_PATH, PRICEBOX_PATH
+from app_config import BASE_DIR, ASSETS_DIR, GRAPHICS_EXCELS_DIR, FONT_PATH_BOLD, FONT_PATH_CN, FONT_PATH_EN, FILLER_PATH, PRICEBOX_PATH
 
 from PIL import Image, ImageFont, ImageDraw
 from models.item import Item
@@ -142,7 +142,7 @@ class Collage:
         
     def makepages(self):
         for page_i in range(1): #math.ceil(len(self.items_list)/items_pp):
-            base_canvas = Image.new('RGBA',(SQ_SIZE),(255,255,255,0))
+            base_canvas = Image.new('RGBA',(SQ_SIZE),(255,255,255,255))
 
             canvas = base_canvas.copy()
             index_of_first_item_on_page = page_i*self.items_pp
@@ -230,8 +230,12 @@ class Collage:
                 print(f'look here rect size {rectangle.size} \ncanvas: {canvas.size}')
                 rectangle.convert('RGB')
                 canvas.paste(rectangle,(x_coord,y_coord))
-            
-            canvas.save(os.path.join(ASSETS_DIR,self.name),"PNG")
+            savefileas = self.name+'.png'
+
+            white_bg = Image.new("RGB", canvas.size, (255, 255, 255))
+            white_bg.paste(canvas, mask=canvas.split()[3])
+            white_bg.save(os.path.join(GRAPHICS_EXCELS_DIR, savefileas))
+
                 
 
 

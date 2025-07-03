@@ -11,7 +11,7 @@ from gooey.header import Header
 from pathlib import Path
 from app_config import BASE_DIR, ASSETS_DIR, GRAPHICS_EXCELS_DIR, IMAGES_DIR
 from core.excel_parser import parse_excel_to_collage
-from gooey.image_selector_frame import ItemSelectorFrame
+
 from typing import Optional
 from tkinter import filedialog
 import threading

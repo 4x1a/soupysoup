@@ -275,7 +275,7 @@ def render_stacked_text(chinese_text, english_text, font_size):
 
 def center_text_on_canvas(text_img, width, height):
     # Create transparent canvas
-    canvas = Image.new("RGBA", (width, height), (255, 255, 255, 0))
+    canvas = Image.new("RGBA", (width, height), (255, 253, 240, 160))
 
     # Get position to paste (centered)
     x = (width - text_img.width) // 2
