@@ -50,8 +50,8 @@ class Collage:
         #print(f'here i am and the longest_en word is: {longest_en}, {longest_cn}')
         #print(f'aqui is the rect wxh: {self.rectw} {self.recth}')
         ### HERE WE'RE SETTING HOW LARGE THE TEXT FOR THE NAMES' OF ITEMS WILL BE
-        box_width = int(mmtopix(self.rectw))
-        box_height = int(mmtopix(self.recth))
+        box_width = self.rectw
+        box_height = self.recth
     
         max_font_size = 100  # Try from large to small
     
@@ -80,7 +80,8 @@ class Collage:
                 break  # Done! We found the largest one that fits
         else:
             set2= 10  # Fallback if none fit
-        self.max_text_size = set2
+        self.max_text_size = int(set2*.8)
+        ###FIX TEXT SIZE
         print(f"✅ Max font size that fits: {self.max_text_size}")
 
 
@@ -138,103 +139,215 @@ class Collage:
             self.text_size()
             
             self.makepages()
-
-        
     def makepages(self):
-        for page_i in range(1): #math.ceil(len(self.items_list)/items_pp):
-            base_canvas = Image.new('RGBA',(SQ_SIZE),(255,255,255,255))
-
+        num_pages = math.ceil(len(self.items_list) / self.items_pp)
+    
+        for page_i in range(num_pages):
+            base_canvas = Image.new('RGBA', (SQ_SIZE), (255, 255, 255, 255))
             canvas = base_canvas.copy()
-            index_of_first_item_on_page = page_i*self.items_pp
-            for item_j in range(index_of_first_item_on_page,index_of_first_item_on_page+self.items_pp):
-                x_coord = self.rectw * (item_j % self.items_per_row)
-                y_coord = self.recth * (item_j // self.items_per_row)
-
-                rectangle = Image.new('RGBA',(self.rectw,self.recth),(255,255,255,0))
-        
-                if item_j<len(self.items_list):
+    
+            index_of_first_item_on_page = page_i * self.items_pp
+    
+            for item_j in range(index_of_first_item_on_page, index_of_first_item_on_page + self.items_pp):
+                # Compute index relative to page
+                relative_j = item_j - index_of_first_item_on_page
+                x_coord = self.rectw * (relative_j % self.items_per_row)
+                y_coord = self.recth * (relative_j // self.items_per_row)
+    
+                rectangle = Image.new('RGBA', (self.rectw, self.recth), (255, 255, 255, 0))
+    
+                if item_j < len(self.items_list):
                     item = self.items_list[item_j]
-                    img = item.foodpic()
-                    img = img.resize((self.rectw,self.rectw))
-                    #paste foodpic
-                    rectangle.paste(img)
-
-                    ## pricebox
+                    img = item.foodpic().resize((self.rectw, self.rectw))
+                    rectangle.paste(img, (0, 0))
+    
+                    # pricebox
                     with Image.open(PRICEBOX_PATH) as pb_img:
                         pricebox = pb_img.convert('RGBA').copy()
                         resized_pricebox = pricebox.resize(
-                            (self.rectw // 2, self.recth//3),
-                        resample=Image.LANCZOS
-                                   ).copy()
-                    base_font_scale=resized_pricebox.height/3
+                            (self.rectw // 2, self.recth // 3),
+                            resample=Image.LANCZOS
+                        )
+    
+                    base_font_scale = resized_pricebox.height / 3
                     min_size = 10
-                    big_size = max(int(base_font_scale*1.4),min_size)
-                    super_size = max(int(base_font_scale*0.72),min_size)
-                    unit_size=max(int(base_font_scale*0.5),min_size)
-                    prefix_size = max(int(base_font_scale*0.72),min_size)
-
+                    big_size = max(int(base_font_scale * 1.8), min_size)
+                    super_size = max(int(base_font_scale * 0.72), min_size)
+                    unit_size = max(int(base_font_scale * 0.72), min_size)
+                    prefix_size = max(int(base_font_scale * 0.72), min_size)
+    
                     fonts = {
                         'big': ImageFont.truetype(FONT_PATH_BOLD, size=big_size),
                         'super': ImageFont.truetype(FONT_PATH_EN, size=super_size),
                         'unit': ImageFont.truetype(FONT_PATH_EN, size=unit_size),
                         'prefix': ImageFont.truetype(FONT_PATH_EN, size=prefix_size)
                     }
-
+    
                     scale_factor = 4
                     large_box_size = (
                         resized_pricebox.width * scale_factor,
                         resized_pricebox.height * scale_factor
                     )
-                    
+    
                     fonts_large = {
                         k: ImageFont.truetype(f.path, size=f.size * scale_factor)
                         for k, f in fonts.items()
                     }
-
+    
                     hires_price_image = render_price_to_image(
-                        price_text = item.price.strip(),
-                        box_size = large_box_size,
-                        fonts = fonts_large
+                        price_text=item.price.strip(),
+                        box_size=large_box_size,
+                        fonts=fonts_large
                     )
-
+    
                     raw_price_image = hires_price_image.resize(
-                        (resized_pricebox.width,resized_pricebox.height),
+                        (resized_pricebox.width, resized_pricebox.height),
                         resample=Image.LANCZOS
                     )
+    
                     offset_x = (resized_pricebox.width - raw_price_image.width) // 2
                     offset_y = (resized_pricebox.height - raw_price_image.height) // 2
-                    resized_pricebox.paste(raw_price_image,(offset_x,offset_y), raw_price_image)
-
-                    #paste pricebox
-                    pricebox_x = rectangle.width-resized_pricebox.width-1
-                    pricebox_y=rectangle.height-resized_pricebox.height
-                    rectangle.paste(resized_pricebox,(pricebox_x,pricebox_y),resized_pricebox)
-
-                    ## stacked text
+                    resized_pricebox.paste(raw_price_image, (offset_x, offset_y), raw_price_image)
+    
+                    # paste pricebox
+                    pricebox_x = rectangle.width - resized_pricebox.width - 1
+                    pricebox_y = rectangle.height - resized_pricebox.height
+                    rectangle.paste(resized_pricebox, (pricebox_x, int(1.5* pricebox_y)), resized_pricebox)
+    
+                    # stacked text
                     stacked_text_img = render_stacked_text(item.chinese_name, item.name, font_size=self.max_text_size)
-                    texth = min(self.recth/6,stacked_text_img.height)
-                    centered_text = center_text_on_canvas(
-                        stacked_text_img,
-                        ### here we just set it to the (rectw,recth) because thats
-                        ### what we fit the text to
-                        self.rectw,
-                        texth
-                    )
-                    rectangle.paste(centered_text, (0,centered_text.height//2),centered_text)
+                    
+                    # stacked_text_img now already has correct size because font_size was chosen to be target_text_height
+                    # center horizontally on rectangle
+                    x = (self.rectw - stacked_text_img.width) // 2
+                    # position vertically wherever you like, e.g., top quarter:
+                    y = int(max(stacked_text_img.height*.2,0) ) # or (self.recth / 10), adjust to taste
+                    
+                    rectangle.paste(stacked_text_img, (x, int(y)), stacked_text_img)
 
-
+                    # texth = min(self.recth / 6, stacked_text_img.height)
+    
+                    # centered_text = center_text_on_canvas(
+                    #     stacked_text_img,
+                    #     self.rectw,
+                    #     texth
+                    # )
+                    # rectangle.paste(centered_text, (0, centered_text.height // 2), centered_text)
+    
                 else:
+                    # filler
                     with Image.open(FILLER_PATH) as filler_img:
-                        img= filler_img.convert('RGBA').resize((rectangle.width,rectangle.width))
-                        rectangle.paste(img(0,0))
-                print(f'look here rect size {rectangle.size} \ncanvas: {canvas.size}')
-                rectangle.convert('RGB')
-                canvas.paste(rectangle,(x_coord,y_coord))
-            savefileas = self.name+'.png'
-
+                        img = filler_img.convert('RGBA').resize((rectangle.width, rectangle.width))
+                        rectangle.paste(img, (0, 0))
+    
+                print(f'Page {page_i} – Pasting rectangle at ({x_coord}, {y_coord}), rect size {rectangle.size}, canvas size {canvas.size}')
+                canvas.paste(rectangle, (x_coord, y_coord))
+    
+            savefileas = f"{self.name}{page_i}.png"
+    
+            # Add white background and save
             white_bg = Image.new("RGB", canvas.size, (255, 255, 255))
             white_bg.paste(canvas, mask=canvas.split()[3])
             white_bg.save(os.path.join(GRAPHICS_EXCELS_DIR, savefileas))
+    
+        print(f"✅ Done generating {num_pages} pages.")
+
+        
+    # def makepages(self):
+    #     for page_i in range(math.ceil(len(self.items_list)/self.items_pp)):
+    #         base_canvas = Image.new('RGBA',(SQ_SIZE),(255,255,255,255))
+
+    #         canvas = base_canvas.copy()
+    #         index_of_first_item_on_page = page_i*self.items_pp
+    #         for item_j in range(index_of_first_item_on_page,index_of_first_item_on_page+self.items_pp):
+    #             x_coord = self.rectw * (item_j % self.items_per_row)
+    #             y_coord = self.recth * (item_j // self.items_per_row)
+
+    #             rectangle = Image.new('RGBA',(self.rectw,self.recth),(255,255,255,0))
+        
+    #             if item_j<len(self.items_list):
+    #                 item = self.items_list[item_j]
+    #                 img = item.foodpic()
+    #                 img = img.resize((self.rectw,self.rectw))
+    #                 #paste foodpic
+    #                 rectangle.paste(img)
+
+    #                 ## pricebox
+    #                 with Image.open(PRICEBOX_PATH) as pb_img:
+    #                     pricebox = pb_img.convert('RGBA').copy()
+    #                     resized_pricebox = pricebox.resize(
+    #                         (self.rectw // 2, self.recth//3),
+    #                     resample=Image.LANCZOS
+    #                                ).copy()
+    #                 base_font_scale=resized_pricebox.height/3
+    #                 min_size = 10
+    #                 big_size = max(int(base_font_scale*1.4),min_size)
+    #                 super_size = max(int(base_font_scale*0.72),min_size)
+    #                 unit_size=max(int(base_font_scale*0.5),min_size)
+    #                 prefix_size = max(int(base_font_scale*0.72),min_size)
+
+    #                 fonts = {
+    #                     'big': ImageFont.truetype(FONT_PATH_BOLD, size=big_size),
+    #                     'super': ImageFont.truetype(FONT_PATH_EN, size=super_size),
+    #                     'unit': ImageFont.truetype(FONT_PATH_EN, size=unit_size),
+    #                     'prefix': ImageFont.truetype(FONT_PATH_EN, size=prefix_size)
+    #                 }
+
+    #                 scale_factor = 4
+    #                 large_box_size = (
+    #                     resized_pricebox.width * scale_factor,
+    #                     resized_pricebox.height * scale_factor
+    #                 )
+                    
+    #                 fonts_large = {
+    #                     k: ImageFont.truetype(f.path, size=f.size * scale_factor)
+    #                     for k, f in fonts.items()
+    #                 }
+
+    #                 hires_price_image = render_price_to_image(
+    #                     price_text = item.price.strip(),
+    #                     box_size = large_box_size,
+    #                     fonts = fonts_large
+    #                 )
+
+    #                 raw_price_image = hires_price_image.resize(
+    #                     (resized_pricebox.width,resized_pricebox.height),
+    #                     resample=Image.LANCZOS
+    #                 )
+    #                 offset_x = (resized_pricebox.width - raw_price_image.width) // 2
+    #                 offset_y = (resized_pricebox.height - raw_price_image.height) // 2
+    #                 resized_pricebox.paste(raw_price_image,(offset_x,offset_y), raw_price_image)
+
+    #                 #paste pricebox
+    #                 pricebox_x = rectangle.width-resized_pricebox.width-1
+    #                 pricebox_y=rectangle.height-resized_pricebox.height
+    #                 rectangle.paste(resized_pricebox,(pricebox_x,pricebox_y),resized_pricebox)
+
+    #                 ## stacked text
+    #                 stacked_text_img = render_stacked_text(item.chinese_name, item.name, font_size=self.max_text_size)
+    #                 texth = min(self.recth/6,stacked_text_img.height)
+    #                 centered_text = center_text_on_canvas(
+    #                     stacked_text_img,
+    #                     ### here we just set it to the (rectw,recth) because thats
+    #                     ### what we fit the text to
+    #                     self.rectw,
+    #                     texth
+    #                 )
+    #                 rectangle.paste(centered_text, (0,centered_text.height//2),centered_text)
+
+
+    #             else:
+    #                 with Image.open(FILLER_PATH) as filler_img:
+    #                     img= filler_img.convert('RGBA').resize((rectangle.width,rectangle.width))
+    #                     rectangle.paste(img(0,0))
+    #             print(f'look here rect size {rectangle.size} \ncanvas: {canvas.size}')
+    #             rectangle.convert('RGB')
+    #             canvas.paste(rectangle,(x_coord,y_coord))
+    #         savefileas = self.name+str(page_i)+'.png'
+
+    #         white_bg = Image.new("RGB", canvas.size, (255, 255, 255))
+    #         white_bg.paste(canvas, mask=canvas.split()[3])
+    #         white_bg.save(os.path.join(GRAPHICS_EXCELS_DIR, savefileas))
 
                 
 

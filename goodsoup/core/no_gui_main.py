@@ -25,7 +25,7 @@ def main():
     #initialize app state
     state = AppState(IMAGES_DIR)
     
-    excel = 'weeklysale10-01-25to11-05-25.xlsx'
+    excel = 'WeeklySalejuly4.xlsx'
     collage = make_collage(excel)
     #make sure object instance was created
     if collage != None:

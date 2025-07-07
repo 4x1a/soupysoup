@@ -27,23 +27,29 @@ class Item:
         self.possible_images = []
 
     def __repr__(self):
-        return f'item: {self.name} at {self.price}'
+        return f'item: {self.name} at {self.price}, {self.image_hint}'
     
     def select_image(self, state):
         if self.image_hint.lower() == "blank":
             return [{'path': FALLBACK_IMAGE, 'score': 100, 'matched_keywords': ['blank']}]
     
         elif not self.image_hint:
+            print('hi not self.image_hint')
             return find_matching_images(self.name, self.chinese_name, state)
     
         elif self.image_hint.lower().endswith(IMG_EXTS):
-            full_path = os.path.join(FOLDER_PATH, self.image_hint)
-            if os.path.exists(full_path):
-                return [{'path': full_path, 'score': 100, 'matched_keywords': ['direct match']}]
+            filepath = state.find_image_by_filename(self.image_hint)
+            if filepath:
+                return [{'path': filepath, 'score': 100, 'matched_keywords': ['all']}]
+            # full_path = os.path.join(IMAGES_DIR, self.image_hint)
+            # if os.path.exists(full_path):
+            #     return [{'path': full_path, 'score': 100, 'matched_keywords': ['direct match']}]
             else:
+                print(f'hello tf happ\n {filepath}')
                 return find_matching_images(self.name, self.chinese_name, state)
     
         else:
+            print('i here')
             return find_matching_images(self.name, self.chinese_name, state, additional_search=self.image_hint)
 
 
@@ -72,7 +78,7 @@ class Item:
         path = self.selected_image_path or os.path.join(FOLDER_PATH, FALLBACK_IMAGE)
         img = load_image(path,as_tk=False)
         width,height = img.size
-        side_length = max(width,height)
+        side_length = int(max(width,height)*1.2)
 
         #create new square bkgrnd
         new_img = Image.new('RGBA',(side_length,side_length),color=fill_color)

@@ -36,7 +36,8 @@ BHEADER_PATH = os.path.join(ASSETS_DIR,'newgolden_bottomheader.png')
 FONT_PATH_CN = os.path.join(ASSETS_DIR,'NotoSansSC-SemiBold.ttf')
 FONT_PATH_EN = os.path.join(ASSETS_DIR,'NotoSansSC-SemiBold.ttf')
 FONT_PATH_BOLD = os.path.join(ASSETS_DIR,'Shrikhand-Regular.ttf')
-PRICEBOX_PATH = os.path.join(ASSETS_DIR,'pop_speech_bubb.png')
+#PRICEBOX_PATH = os.path.join(ASSETS_DIR,'pop_speech_bubb.png')
+PRICEBOX_PATH = os.path.join(ASSETS_DIR,'yellowredspike.png')
 FILLER_PATH = os.path.join(ASSETS_DIR,'luckycat3.png')
 
 # You can add other paths or settings here as well

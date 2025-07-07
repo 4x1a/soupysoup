@@ -109,6 +109,11 @@ class AppState:
                 raise ValueError(f"Unknown sort key: {sort_by}")
     
         return result
+    def find_image_by_filename(self, filename):
+        for metadata in self.image_list:
+            if os.path.basename(metadata.file_path) == filename:
+                return metadata.file_path
+        return None  # Not found
 
 
 

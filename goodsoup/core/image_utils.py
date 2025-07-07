@@ -232,9 +232,9 @@ def render_price_to_image(price_text: str, box_size: tuple[int, int], fonts: dic
     return image
 
 def render_stacked_text(chinese_text, english_text, font_size):
-    # Scale fonts up
-    font_cn = ImageFont.truetype(FONT_PATH_CN, font_size * scale)
-    font_en = ImageFont.truetype(FONT_PATH_EN, font_size * scale-scale)
+    # remove scaling
+    font_cn = ImageFont.truetype(FONT_PATH_CN, font_size)
+    font_en = ImageFont.truetype(FONT_PATH_EN, font_size - 1)
 
     dummy_img = Image.new("RGBA", (1, 1))
     draw = ImageDraw.Draw(dummy_img)
@@ -250,38 +250,114 @@ def render_stacked_text(chinese_text, english_text, font_size):
     total_width = max(w_cn, w_en)
     total_height = h_cn + h_en
 
-    # Create hi-res canvas
     img = Image.new("RGBA", (total_width, total_height), (0, 0, 0, 0))
     draw = ImageDraw.Draw(img)
 
-    # Calculate centered positions
-    x_cn = (total_width - w_cn) // 2 - bbox_cn[0]
-    y_cn = -bbox_cn[1]
-
+    # English on top
     x_en = (total_width - w_en) // 2 - bbox_en[0]
-    y_en = h_cn - bbox_en[1]
+    y_en = -bbox_en[1]
 
-    # Draw text
-    draw.text((x_cn, y_cn), chinese_text, font=font_cn, fill=(0, 0, 0, 255))
+    # Chinese below
+    x_cn = (total_width - w_cn) // 2 - bbox_cn[0]
+    y_cn = h_en - bbox_cn[1]
+
     draw.text((x_en, y_en), english_text, font=font_en, fill=(0, 0, 0, 255))
+    draw.text((x_cn, y_cn), chinese_text, font=font_cn, fill=(0, 0, 0, 255))
 
-    # Downscale for smoothness
-    final_img = img.resize(
-        (total_width // scale, total_height // scale),
-        resample=Image.LANCZOS
-    )
-    return final_img
+    return img  # don't resize!
 
+
+from PIL import Image, ImageDraw, ImageFilter
 
 def center_text_on_canvas(text_img, width, height):
-    # Create transparent canvas
-    canvas = Image.new("RGBA", (width, height), (255, 253, 240, 160))
+    # Create fully transparent canvas
+    canvas = Image.new("RGBA", (width, height), (0, 0, 0, 0))
 
-    # Get position to paste (centered)
+    # Position to center text
     x = (width - text_img.width) // 2
     y = (height - text_img.height) // 2
 
-    # Paste text image with alpha
+    # Create cream box same size as text_img
+    cream_color = (255, 253, 240, 160)  # adjust opacity here
+    radius = 8  # corner radius
+    cream_box = Image.new("RGBA", text_img.size, (0, 0, 0, 0))
+    draw = ImageDraw.Draw(cream_box)
+    draw.rounded_rectangle(
+        [(0, 0), text_img.size],
+        radius=radius,
+        fill=cream_color
+    )
+
+    # Optional: subtle shadow
+    shadow = cream_box.copy().convert("RGBA").filter(ImageFilter.GaussianBlur(3))
+    shadow_alpha = 100
+    shadow = Image.eval(shadow, lambda px: px * shadow_alpha // 255)
+
+    # Paste shadow slightly offset
+    shadow_offset = (x+2, y+2)
+    canvas.paste(shadow, shadow_offset, shadow)
+
+    # Paste cream box
+    canvas.paste(cream_box, (x, y), cream_box)
+
+    # Paste text over cream
     canvas.paste(text_img, (x, y), text_img)
 
     return canvas
+
+
+# def render_stacked_text(chinese_text, english_text, font_size):
+#     # Scale fonts up
+#     font_cn = ImageFont.truetype(FONT_PATH_CN, font_size * scale)
+#     font_en = ImageFont.truetype(FONT_PATH_EN, font_size * scale-scale)
+
+#     dummy_img = Image.new("RGBA", (1, 1),color='white')
+#     draw = ImageDraw.Draw(dummy_img)
+
+#     bbox_cn = draw.textbbox((0, 0), chinese_text, font=font_cn)
+#     bbox_en = draw.textbbox((0, 0), english_text, font=font_en)
+
+#     w_cn = bbox_cn[2] - bbox_cn[0]
+#     h_cn = bbox_cn[3] - bbox_cn[1]
+#     w_en = bbox_en[2] - bbox_en[0]
+#     h_en = bbox_en[3] - bbox_en[1]
+
+#     total_width = max(w_cn, w_en)
+#     total_height = h_cn + h_en
+
+#     # Create hi-res canvas
+#     img = Image.new("RGBA", (total_width, total_height), (0, 0, 0, 0))
+#     draw = ImageDraw.Draw(img)
+
+#     # Calculate centered positions
+#     x_cn = (total_width - w_cn) // 2 - bbox_cn[0]
+#     y_cn = -bbox_cn[1]
+
+#     x_en = (total_width - w_en) // 2 - bbox_en[0]
+#     y_en = h_cn - bbox_en[1]
+
+#     # Draw text
+#     draw.text((x_cn, y_cn), chinese_text, font=font_cn, fill=(0, 0, 0, 255))
+#     draw.text((x_en, y_en), english_text, font=font_en, fill=(0, 0, 0, 255))
+
+#     # Downscale for smoothness
+#     final_img = img.resize(
+#         (total_width // scale, total_height // scale),
+#         resample=Image.LANCZOS
+#     )
+#     return final_img
+
+
+# # def center_text_on_canvas(text_img, width, height):
+# #     # Create transparent canvas
+# #     canvas = Image.new("RGBA", (width, height), (255, 253, 240, 160))
+
+#     # Get position to paste (centered)
+#     x = (width - text_img.width) // 2
+#     y = (height - text_img.height) // 2
+
+#     # Paste text image with alpha
+#     canvas.paste(text_img, (x, y), text_img)
+
+#     return canvas
+
