@@ -60,7 +60,6 @@ def u_choose_images(collage_inst,state):
         
 def make_n_save_graphic(collage):
     collage.generate_graphics()
-    collage.makepages()
     #print('plzzz so closeS')
     #grafic = collage.graphic
     #save_as = collage.name+'.pdf'

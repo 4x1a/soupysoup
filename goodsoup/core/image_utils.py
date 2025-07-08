@@ -160,11 +160,19 @@ def render_price_to_image(price_text: str, box_size: tuple[int, int], fonts: dic
         x_dollar = x_super + super_w
         x_cents = x_dollar + dollar_w
 
-        y_super = y_price + (dollar_h - super_h)
-        draw.text((x_super, y_super), super_text, font=font_super, fill=(0, 0, 0, 255))
         draw.text((x_dollar, y_price), dollar_text, font=font_big, fill=(0, 0, 0, 255))
         if cents:
             draw.text((x_cents, y_price), cents_text, font=font_super, fill=(0, 0, 0, 255))
+            # Get Y top of where the cents would be drawn
+            cents_y_top = y_price
+            # Align the $ with the top of the cents
+            y_super = cents_y_top
+        else:
+            # No cents — align $ vertically with dollar
+            y_super = y_price + (dollar_h - super_h)
+
+        draw.text((x_super, y_super), super_text, font=font_super, fill=(0, 0, 0, 255))
+
 
     elif unit_match:
         dollars, cents, unit = unit_match.groups()
@@ -232,10 +240,14 @@ def render_price_to_image(price_text: str, box_size: tuple[int, int], fonts: dic
     return image
 
 def render_stacked_text(chinese_text, english_text, font_size):
-    # remove scaling
     font_cn = ImageFont.truetype(FONT_PATH_CN, font_size)
     font_en = ImageFont.truetype(FONT_PATH_EN, font_size - 1)
 
+    # Get font metrics for English text
+    ascent_en, descent_en = font_en.getmetrics()
+    line_height_en = ascent_en + descent_en
+
+    # Dummy image to measure widths (we won't use bbox heights)
     dummy_img = Image.new("RGBA", (1, 1))
     draw = ImageDraw.Draw(dummy_img)
 
@@ -243,28 +255,29 @@ def render_stacked_text(chinese_text, english_text, font_size):
     bbox_en = draw.textbbox((0, 0), english_text, font=font_en)
 
     w_cn = bbox_cn[2] - bbox_cn[0]
-    h_cn = bbox_cn[3] - bbox_cn[1]
     w_en = bbox_en[2] - bbox_en[0]
-    h_en = bbox_en[3] - bbox_en[1]
 
     total_width = max(w_cn, w_en)
-    total_height = h_cn + h_en
+    
+    # For Chinese, use textbbox height (Chinese has uniform metrics)
+    h_cn = bbox_cn[3] - bbox_cn[1]
+    total_height = line_height_en + h_cn
 
+    # Create canvas
     img = Image.new("RGBA", (total_width, total_height), (0, 0, 0, 0))
     draw = ImageDraw.Draw(img)
 
-    # English on top
+    # English top line, baseline at `ascent_en`
     x_en = (total_width - w_en) // 2 - bbox_en[0]
-    y_en = -bbox_en[1]
-
-    # Chinese below
-    x_cn = (total_width - w_cn) // 2 - bbox_cn[0]
-    y_cn = h_en - bbox_cn[1]
-
+    y_en = 0  # Top of image
     draw.text((x_en, y_en), english_text, font=font_en, fill=(0, 0, 0, 255))
+
+    # Chinese below, start at line_height_en
+    x_cn = (total_width - w_cn) // 2 - bbox_cn[0]
+    y_cn = line_height_en - bbox_cn[1]
     draw.text((x_cn, y_cn), chinese_text, font=font_cn, fill=(0, 0, 0, 255))
 
-    return img  # don't resize!
+    return img
 
 
 from PIL import Image, ImageDraw, ImageFilter

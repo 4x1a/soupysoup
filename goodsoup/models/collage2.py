@@ -139,6 +139,8 @@ class Collage:
             self.text_size()
             
             self.makepages()
+
+
     def makepages(self):
         num_pages = math.ceil(len(self.items_list) / self.items_pp)
     
@@ -165,7 +167,7 @@ class Collage:
                     with Image.open(PRICEBOX_PATH) as pb_img:
                         pricebox = pb_img.convert('RGBA').copy()
                         resized_pricebox = pricebox.resize(
-                            (self.rectw // 2, self.recth // 3),
+                            (int(self.rectw // 1.75), self.recth // 3),
                             resample=Image.LANCZOS
                         )
     
@@ -206,13 +208,19 @@ class Collage:
                     )
     
                     offset_x = (resized_pricebox.width - raw_price_image.width) // 2
-                    offset_y = (resized_pricebox.height - raw_price_image.height) // 2
+                    if raw_price_image.height <= resized_pricebox.height:
+                        # Center normally
+                        offset_y = (resized_pricebox.height - raw_price_image.height) // 2
+                    else:
+                        # Align to bottom
+                        offset_y = resized_pricebox.height - raw_price_image.height
+
                     resized_pricebox.paste(raw_price_image, (offset_x, offset_y), raw_price_image)
     
                     # paste pricebox
                     pricebox_x = rectangle.width - resized_pricebox.width - 1
                     pricebox_y = rectangle.height - resized_pricebox.height
-                    rectangle.paste(resized_pricebox, (pricebox_x, int(1.5* pricebox_y)), resized_pricebox)
+                    rectangle.paste(resized_pricebox, (pricebox_x, int(.9* pricebox_y)), resized_pricebox)
     
                     # stacked text
                     stacked_text_img = render_stacked_text(item.chinese_name, item.name, font_size=self.max_text_size)
