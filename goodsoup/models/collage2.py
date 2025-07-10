@@ -167,7 +167,7 @@ class Collage:
                     with Image.open(PRICEBOX_PATH) as pb_img:
                         pricebox = pb_img.convert('RGBA').copy()
                         resized_pricebox = pricebox.resize(
-                            (int(self.rectw // 1.75), self.recth // 3),
+                            (int(self.rectw // 1.75), int(self.recth // 2.75)),
                             resample=Image.LANCZOS
                         )
     

@@ -34,7 +34,6 @@ class AppState:
         self.index_images()
 
 
-
     def index_images(self):
         self.image_list.clear()
         self.image_dict.clear()

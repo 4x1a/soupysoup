@@ -9,7 +9,7 @@ import os
 import re
 from app_config import BASE_DIR, ASSETS_DIR, IMAGES_DIR, IMG_EXTS, FALLBACK_IMAGE, FONT_PATH_EN, FONT_PATH_CN
 from core.useful_funcs import DPI
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw, ImageFont, ImageOps
 import warnings
 warnings.simplefilter('always')
 
@@ -104,13 +104,15 @@ def render_price_to_image(price_text: str, box_size: tuple[int, int], fonts: dic
     box_w, box_h = box_size
     padding_sides = 6  # keep side padding as is
 
-    image = Image.new("RGBA", box_size, (255, 255, 255, 0))
+    image = Image.new("RGBA", box_size, (100, 255, 255, 255))
+    bordered_img = ImageOps.expand(img, border=50, fill="white")
     draw = ImageDraw.Draw(image)
 
     font_big = fonts['big']
     font_super = fonts['super']
     font_unit = fonts['unit']
-    font_prefix = fonts.get('prefix', font_unit)
+    font_prefix = fonts['prefix']
+    #font_prefix = fonts.get('prefix', font_unit)
 
     # Enhanced regex: prioritize multi_match first
     multi_match = re.match(r"^\s*(\d+)\s+for\s+\$?\s*(\d+(?:\.\d{1,2})?)\s*$", price_text, re.IGNORECASE)
