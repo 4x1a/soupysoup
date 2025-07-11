@@ -33,6 +33,10 @@ class AppState:
         self.categories = set()
         self.index_images()
 
+    def process_images(self):
+        ## check if there are images needed to be processed
+        print('fix')
+
 
     def index_images(self):
         self.image_list.clear()

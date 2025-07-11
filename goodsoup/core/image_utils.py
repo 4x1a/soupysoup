@@ -104,8 +104,8 @@ def render_price_to_image(price_text: str, box_size: tuple[int, int], fonts: dic
     box_w, box_h = box_size
     padding_sides = 6  # keep side padding as is
 
-    image = Image.new("RGBA", box_size, (100, 255, 255, 255))
-    bordered_img = ImageOps.expand(img, border=50, fill="white")
+    image = Image.new("RGBA", box_size, (100, 255, 255, 0))
+    image = ImageOps.expand(image, border=50, fill="white")
     draw = ImageDraw.Draw(image)
 
     font_big = fonts['big']
@@ -131,50 +131,70 @@ def render_price_to_image(price_text: str, box_size: tuple[int, int], fonts: dic
         dollar_text = dollars
         cents_text = f".{cents}" if cents else ""
         super_text = "$"
-
+        
+        # Measure text
         prefix_bbox = draw.textbbox((0, 0), prefix_text, font=font_prefix)
         dollar_bbox = draw.textbbox((0, 0), dollar_text, font=font_big)
-        cents_bbox = draw.textbbox((0, 0), ".00", font=font_super)
-        super_bbox = draw.textbbox((0, 0), super_text, font=font_super)
+        super_bbox  = draw.textbbox((0, 0), super_text, font=font_super)
+        if cents:
+            cents_bbox = draw.textbbox((0, 0), cents_text, font=font_super)
+        else:
+            cents_bbox = None
 
+       # Calculate widths & heights (you already have this)
         prefix_w = prefix_bbox[2] - prefix_bbox[0]
         prefix_h = prefix_bbox[3] - prefix_bbox[1]
+
         dollar_w = dollar_bbox[2] - dollar_bbox[0]
         dollar_h = dollar_bbox[3] - dollar_bbox[1]
-        cents_w = cents_bbox[2] - cents_bbox[0]
-        cents_h = cents_bbox[3] - cents_bbox[1]
+
         super_w = super_bbox[2] - super_bbox[0]
         super_h = super_bbox[3] - super_bbox[1]
 
-        vertical_spacing = 4
-        content_height = prefix_h + vertical_spacing + max(dollar_h, super_h)
-
-        y_offset = (box_h - content_height) // 2
-        y_prefix = y_offset
-        y_price = y_prefix + prefix_h + vertical_spacing
-
-        x_prefix = (box_w - prefix_w) // 2
-        draw.text((x_prefix, y_prefix), prefix_text, font=font_prefix, fill=(0, 0, 0, 255))
-
-        total_price_width = super_w + dollar_w + (cents_w if cents else 0)
-        x_price = (box_w - total_price_width) // 2
-        x_super = x_price
-        x_dollar = x_super + super_w
-        x_cents = x_dollar + dollar_w
-
-        draw.text((x_dollar, y_price), dollar_text, font=font_big, fill=(0, 0, 0, 255))
         if cents:
-            draw.text((x_cents, y_price), cents_text, font=font_super, fill=(0, 0, 0, 255))
-            # Get Y top of where the cents would be drawn
-            cents_y_top = y_price
-            # Align the $ with the top of the cents
-            y_super = cents_y_top
+            cents_w = cents_bbox[2] - cents_bbox[0]
+            cents_h = cents_bbox[3] - cents_bbox[1]
         else:
-            # No cents — align $ vertically with dollar
-            y_super = y_price + (dollar_h - super_h)
+            cents_w = 0
+            cents_h = 0
 
-        draw.text((x_super, y_super), super_text, font=font_super, fill=(0, 0, 0, 255))
+        # Total width of price line: sum of super + dollar + cents widths
+        total_price_w = super_w + dollar_w + cents_w
 
+        # Total height = prefix height + vertical spacing + max height of price line
+        vertical_spacing = 4
+        price_line_height = max(dollar_h, super_h, cents_h)
+        total_content_height = prefix_h + vertical_spacing + price_line_height
+
+        # Calculate y positions
+        y_offset = (box_h - total_content_height) // 2
+
+        # Prefix is centered horizontally over the whole price
+        x_prefix = (box_w - prefix_w) // 2
+        y_prefix = y_offset
+
+        # Price line vertical start (top edge of dollar_text)
+        y_price_top = y_prefix + prefix_h + vertical_spacing
+
+        # Align tops of dollar, super, cents to y_price_top
+        y_dollar = y_price_top
+        y_super = y_price_top
+        y_cents = y_price_top if cents else None
+
+        # Calculate horizontal positions:
+        # Price starts centered horizontally
+        x_price_start = (box_w - total_price_w) // 2
+
+        x_super = x_price_start
+        x_dollar = x_super + super_w
+        x_cents = x_dollar + dollar_w if cents else None
+
+        # Draw
+        draw.text((x_prefix, y_prefix), prefix_text, font=font_prefix, fill=(0,0,0,255))
+        draw.text((x_super, y_super), super_text, font=font_super, fill=(0,0,0,255))
+        draw.text((x_dollar, y_dollar), dollar_text, font=font_big, fill=(0,0,0,255))
+        if cents:
+            draw.text((x_cents, y_cents), cents_text, font=font_super, fill=(0,0,0,255))
 
     elif unit_match:
         dollars, cents, unit = unit_match.groups()
