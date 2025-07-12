@@ -8,6 +8,7 @@ Original file is located at
 """
 
 # going to be excel_parser.py
+import random
 from pathlib import Path
 import pandas as pd
 from models.item import Item
@@ -17,24 +18,43 @@ import re
 
 def parse_excel_to_collage(excel_path: Path) -> Collage:
     df = pd.read_excel(excel_path)
-
-    # Normalize column names
+    df = df.dropna(how='all')
     df.columns = [col.lower().strip() for col in df.columns]
 
-    required_columns = {'name', 'chinese name', 'price', 'image'}
-    if not required_columns.issubset(df.columns):
-        raise ValueError(f"Excel is missing required columns: {required_columns}")
-
-    collage_name, start_date, end_date = extract_collage_metadata_from_filename(excel_path.name)
-
-    items = {
-        i: Item(row['name'], row['chinese name'], row['price'], row['image'])
-        for i, row in df.iterrows()
+    column_alternatives = {
+        'name': ['name', 'description'],
+        'chinese name': ['chinese_name', 'product', 'item'],
+        'price': ['price'],
+        'image': ['image', 'picture']
     }
 
-    return Collage(name=collage_name, items_list= items, start_date=start_date, end_date=end_date)
+    actual_cols = {}
+    for category, opts in column_alternatives.items():
+        matches = [c for c in df.columns if c in opts]
+        if matches:
+            actual_cols[category] = matches[0]
+        else:
+            raise ValueError(f"Missing column for '{category}'. Options: {opts}")
 
+    # Build a list first to maintain row order
+    items_list = []
+    for _, row in df.iterrows():
+        if row.isna().all():
+            continue
+        items_list.append(
+            Item(
+                row[actual_cols['name']],
+                row[actual_cols['chinese name']],
+                row[actual_cols['price']],
+                row[actual_cols['image']],
+            )
+        )
 
+    # Convert it into a dict with sequential integer keys
+    items_dict = {i: item for i, item in enumerate(items_list)}
+
+    collage_name, start_date, end_date = extract_collage_metadata_from_filename(str(excel_path))
+    return Collage(name=collage_name, items_list=items_dict, start_date=start_date, end_date=end_date)
 def extract_collage_metadata_from_filename(filename: str):
     """
     Parses filenames like 'weeklysale01102025-01112025.xlsx' and returns:
@@ -44,10 +64,13 @@ def extract_collage_metadata_from_filename(filename: str):
     """
     match = re.search(r'(\d{8})-(\d{8})', filename)
     if not match:
-        return "Weekly Sale", None, None  # fallback
+        num = random.randint(1, 888)
+        return "Weekly Sale"+str(num), None, None  # fallback
+
 
     start_str, end_str = match.groups()
     fmt = "%m%d%Y"
+
 
     try:
         start_date = datetime.strptime(start_str, fmt)

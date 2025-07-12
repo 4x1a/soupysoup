@@ -22,7 +22,7 @@ class Item:
         self.name = name
         self.chinese_name = str(chinese_name)
         self.price = str(price)
-        self.image_hint = str(image_hint)  # Formerly imagepath
+        self.image_hint = str(image_hint)+'.png'  # Formerly imagepath
         self.selected_image_path = None
         self.possible_images = []
 
@@ -36,7 +36,7 @@ class Item:
         elif not self.image_hint:
             print('hi not self.image_hint')
             return find_matching_images(self.name, self.chinese_name, state)
-    
+            
         elif self.image_hint.lower().endswith(IMG_EXTS):
             filepath = state.find_image_by_filename(self.image_hint)
             if filepath:

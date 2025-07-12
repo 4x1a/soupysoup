@@ -105,7 +105,7 @@ def render_price_to_image(price_text: str, box_size: tuple[int, int], fonts: dic
     padding_sides = 6  # keep side padding as is
 
     image = Image.new("RGBA", box_size, (100, 255, 255, 0))
-    image = ImageOps.expand(image, border=50, fill="white")
+    #image = ImageOps.expand(image, border=50, fill="white")
     draw = ImageDraw.Draw(image)
 
     font_big = fonts['big']
