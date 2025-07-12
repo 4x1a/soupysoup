@@ -25,7 +25,8 @@ def main():
     #initialize app state
     state = AppState(IMAGES_DIR)
     
-    excel = 'Weekly Sale.xlsx'
+    excel = 'weeklysale2.xlsx'
+    print(excel)
     collage = make_collage(excel)
     #make sure object instance was created
     if collage != None:
@@ -43,9 +44,12 @@ def main():
 def make_collage(excelfile):
 #excelfile = str(input('excel filename'))
     excelpath = Path(os.path.join(GRAPHICS_EXCELS_DIR,excelfile))
+    print(excelpath)
     if excelpath.is_file():
+        print('yay made here hurr')
         try: 
             collage = parse_excel_to_collage(excelpath)
+            print('hi')
             return collage
         except IOError:
             print("couldn't open excel")

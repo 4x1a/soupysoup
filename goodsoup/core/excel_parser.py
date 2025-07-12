@@ -18,12 +18,13 @@ import re
 
 def parse_excel_to_collage(excel_path: Path) -> Collage:
     df = pd.read_excel(excel_path)
+    print(df.head())
     df = df.dropna(how='all')
     df.columns = [col.lower().strip() for col in df.columns]
 
     column_alternatives = {
         'name': ['name', 'description'],
-        'chinese name': ['chinese_name', 'product', 'item'],
+        'chinese name': ['chinese name', 'product', 'item'],
         'price': ['price'],
         'image': ['image', 'picture']
     }
@@ -52,6 +53,7 @@ def parse_excel_to_collage(excel_path: Path) -> Collage:
 
     # Convert it into a dict with sequential integer keys
     items_dict = {i: item for i, item in enumerate(items_list)}
+    print('madde here ')
 
     collage_name, start_date, end_date = extract_collage_metadata_from_filename(str(excel_path))
     return Collage(name=collage_name, items_list=items_dict, start_date=start_date, end_date=end_date)

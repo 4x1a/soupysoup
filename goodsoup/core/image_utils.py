@@ -167,7 +167,7 @@ def render_price_to_image(price_text: str, box_size: tuple[int, int], fonts: dic
         total_content_height = prefix_h + vertical_spacing + price_line_height
 
         # Calculate y positions
-        y_offset = (box_h - total_content_height) // 2
+        y_offset = (box_h - total_content_height) // 2 
 
         # Prefix is centered horizontally over the whole price
         x_prefix = (box_w - prefix_w) // 2

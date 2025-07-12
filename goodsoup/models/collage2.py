@@ -15,6 +15,7 @@ from io import BytesIO
 import warnings
 warnings.simplefilter('always')
 from core.image_utils import render_price_to_image, render_stacked_text, center_text_on_canvas, scale
+import random
 
 
 COLUMNS = 3
@@ -143,7 +144,8 @@ class Collage:
 
     def makepages(self):
         num_pages = math.ceil(len(self.items_list) / self.items_pp)
-    
+        lst = list(self.items_list.values())
+        #random.shuffle(lst)
         for page_i in range(num_pages):
             base_canvas = Image.new('RGBA', (SQ_SIZE), (255, 255, 255, 255))
             canvas = base_canvas.copy()
@@ -157,9 +159,9 @@ class Collage:
                 y_coord = self.recth * (relative_j // self.items_per_row)
     
                 rectangle = Image.new('RGBA', (self.rectw, self.recth), (255, 255, 255, 0))
-    
+                
                 if item_j < len(self.items_list):
-                    item = self.items_list[item_j]
+                    item = lst[item_j]
                     img = item.foodpic().resize((self.rectw, self.rectw))
                     rectangle.paste(img, (0, 0))
     
@@ -176,7 +178,7 @@ class Collage:
                     big_size = max(int(base_font_scale * 1.8), min_size)
                     super_size = max(int(base_font_scale * 0.9), min_size)
                     unit_size = max(int(base_font_scale * 0.72), min_size)
-                    prefix_size = max(int(base_font_scale * 0.9), min_size)
+                    prefix_size = max(int(base_font_scale * 0.6), min_size)
     
                     fonts = {
                         'big': ImageFont.truetype(FONT_PATH_BOLD, size=big_size),
